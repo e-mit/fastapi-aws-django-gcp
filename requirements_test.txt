@@ -1,0 +1,10 @@
+pytest
+pycodestyle
+pydocstyle
+bandit
+pytest-cov
+flake8
+mypy
+pylint
+pyright
+httpx
