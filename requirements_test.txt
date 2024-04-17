@@ -8,3 +8,5 @@ mypy
 pylint
 pyright
 httpx
+python-dateutil
+types-python-dateutil

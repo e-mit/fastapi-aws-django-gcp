@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 
-from app.routers import users
+from app.routers import users, message
 
 VERSION = "0.1.0"
 
@@ -24,11 +24,6 @@ app = FastAPI(
     redoc_url=None
 )
 
-app.include_router(
-    users.router,
-    prefix="/users"
-)
-
 app.mount("/static", StaticFiles(
     directory=pathlib.Path(__file__).parent / "static_files"))
 
@@ -42,3 +37,13 @@ async def hello() -> dict[str, str]:
 @app.get("/favicon.ico", include_in_schema=False)
 async def get_favicon() -> RedirectResponse:
     return RedirectResponse(url="/static/favicon.ico")
+
+
+app.include_router(
+    users.router,
+    prefix="/users"
+)
+app.include_router(
+    message.router,
+    prefix="/message"
+)
