@@ -30,8 +30,14 @@ app.mount("/static", StaticFiles(
 
 @app.get("/", tags=["/"])
 async def hello() -> dict[str, str]:
-    """Get a simple message response."""
+    """A simple message response."""
     return {"message": "Hello"}
+
+
+@app.get("/version", tags=["/"])
+async def version() -> dict[str, str]:
+    """The API version."""
+    return {"api_version": VERSION}
 
 
 @app.get("/favicon.ico", include_in_schema=False)
