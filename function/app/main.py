@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 
-from function.routers import users, message
+from .routers import users, message
 
 VERSION = "0.1.0"
 
