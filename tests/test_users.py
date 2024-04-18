@@ -1,7 +1,7 @@
 """Tests for users.py"""
 from fastapi.testclient import TestClient
 
-from app.routers import users
+from function.routers import users
 
 client = TestClient(users.router)
 

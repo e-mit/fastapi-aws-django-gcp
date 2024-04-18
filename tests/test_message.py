@@ -4,7 +4,7 @@ import dateutil.parser
 
 from fastapi.testclient import TestClient
 
-from app.routers import message
+from function.routers import message
 
 client = TestClient(message.router)
 

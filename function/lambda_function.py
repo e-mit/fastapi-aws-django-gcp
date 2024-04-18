@@ -5,7 +5,7 @@ import os
 
 from mangum import Mangum
 
-from app.main import app
+from function.main import app
 
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'DEBUG')
 logger = logging.getLogger()
