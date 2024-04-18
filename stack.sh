@@ -1,5 +1,5 @@
 #!/bin/bash
-# Version 2.0.0
+# Version 2.1.0
 
 # A script to create an AWS Lambda function within a Cloudformation stack.
 
@@ -51,7 +51,10 @@ _check_for_existing_stack() {
 
 _make_names() {
     FUNCTION_NAME="${STACK_NAME}-function"
-    BUCKET_NAME="${STACK_NAME_LOWER}-bucket" # Lower case only
+    # Note: bucket name must be lower case only, and globally unique
+    RAND_ID=$(dd if=/dev/random bs=3 count=6 2>/dev/null \
+              | od -An -tx1 | tr -d ' \t\n')
+    BUCKET_NAME="${STACK_NAME_LOWER}-bucket-${RAND_ID}"
     LAYER_NAME=$FUNCTION_NAME-layer
 }
 
