@@ -47,7 +47,7 @@ Resources:
       PackageType: Zip
       Handler: lambda_function.lambda_handler
       Runtime: python3.10
-      CodeUri: lambda
+      CodeUri: function
       Description: A Lambda to call a FastAPI app
       Timeout: !Ref timeout
       Policies:
@@ -57,7 +57,10 @@ Resources:
       Layers:
         - Ref: libs
       Events:
-        TODO
+        APIevent:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref apiGateway
       VpcConfig:
         SecurityGroupIds:
           - !Ref VPCsecurityGroupID
@@ -80,3 +83,24 @@ Resources:
         - x86_64
       CompatibleRuntimes:
         - python3.10
+
+  apiGateway:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      Description: API Gateway for the app
+      FailOnWarnings: true
+      Name:
+        !Join
+        - '-'
+        - - !Ref functionName
+          - 'apigateway'
+
+Outputs:
+  ApiUrl:
+    Description: URL of the API endpoint
+    Value:
+      Fn::Sub: 'https://${apiGateway}.execute-api.${AWS::Region}.${AWS::URLSuffix}/${apiGateway.StageName}/'
+  ApiId:
+    Description: API ID
+    Value:
+      Ref: apiGateway
