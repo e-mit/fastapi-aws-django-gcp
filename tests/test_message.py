@@ -1,6 +1,7 @@
 """Tests for message.py"""
 from datetime import datetime, timezone, timedelta
 import dateutil.parser
+import time
 
 from fastapi.testclient import TestClient
 
@@ -35,19 +36,49 @@ def test_post_message():
 
 
 def test_get_message():
+    response = client.get("/")
+    assert response.status_code == 200
+    start_qty = len(response.json())
+
     msg1 = message.StoredMessage.create(
         message.InputMessage(name="me", text="Test text"))
+    msg1.post()
+    time.sleep(4)
     msg2 = message.StoredMessage.create(
         message.InputMessage(name="John Smith", text="This is a test."))
-    message.messages = [msg1, msg2]
+    msg2.post()
     response = client.get("/")
     assert response.status_code == 200
     data = response.json()
-    assert len(data) == 2
+    assert len(data) == (start_qty + 2)
     assert data[0]['id'] != data[1]['id']
     assert data[0]['timestamp'] != data[1]['timestamp']
     assert timestamp_is_recent(data[0]['timestamp'])
-    assert timestamp_is_recent(data[1]['timestamp'])
-    for field in ['name', 'text']:
-        assert data[0][field] == getattr(msg1, field)
-        assert data[1][field] == getattr(msg2, field)
+    assert timestamp_is_recent(data[1]['timestamp'], 5)
+    for field in ['name', 'text', 'id']:
+        # Item 0 should be most recent:
+        assert data[0][field] == getattr(msg2, field)
+        assert data[1][field] == getattr(msg1, field)
+
+
+def db_contains_id(id: str):
+    response = client.get("/")
+    assert response.status_code == 200
+    all_data = response.json()
+    found_id = False
+    for data in all_data:
+        found_id = found_id or (data['id'] == id)
+    return found_id
+
+
+def test_delete_message():
+    msg = message.StoredMessage.create(
+        message.InputMessage(name="me", text="Hello text"))
+    msg.post()
+
+    assert db_contains_id(msg.id)
+
+    response = client.delete(f"/{msg.id}")
+    assert response.status_code == 200
+
+    assert not db_contains_id(msg.id)
