@@ -36,6 +36,23 @@ Resources:
         - - 'lambda-log'
           - !Ref functionName
 
+  accessPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: Give lambda CRUD access to dynamoDB
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "dynamodb:DeleteItem"
+              - "dynamodb:GetItem"
+              - "dynamodb:PutItem"
+              - "dynamodb:Query"
+              - "dynamodb:Scan"
+              - "dynamodb:UpdateItem"
+            Resource: !Ref dynamoDB
+
   function:
     Type: AWS::Serverless::Function
     Properties:
@@ -54,6 +71,7 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
         - AWSLambdaVPCAccessExecutionRole
+        - !Ref accessPolicy
       Layers:
         - Ref: libs
       Events:
@@ -94,6 +112,47 @@ Resources:
         - '-'
         - - !Ref functionName
           - 'apigateway'
+
+  dynamoDB:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: "id"
+          AttributeType: "S"
+        -
+          AttributeName: "pk"
+          AttributeType: "N"
+        -
+          AttributeName: "timestamp"
+          AttributeType: "N"
+      KeySchema:
+        -
+          AttributeName: "id"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "3"
+        WriteCapacityUnits: "3"
+      TableName:
+        !Join
+        - '-'
+        - - !Ref functionName
+          - 'dynamodb'
+      GlobalSecondaryIndexes:
+        -
+          IndexName: "gsi"
+          KeySchema:
+            -
+              AttributeName: "pk"
+              KeyType: "HASH"
+            -
+              AttributeName: "timestamp"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
+          ProvisionedThroughput:
+            ReadCapacityUnits: "3"
+            WriteCapacityUnits: "3"
 
 Outputs:
   ApiUrl:

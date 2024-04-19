@@ -12,7 +12,7 @@ app = FastAPI(
     title="FastAPI demo",
     description="Description goes here (use *Markdown*).",
     summary="A simple FastAPI app.",
-    version=VERSION,
+    version=f"v{VERSION}",
     contact={
         "name": "e-mit.github.io",
         "url": "https://e-mit.github.io/"
