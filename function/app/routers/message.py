@@ -1,4 +1,4 @@
-"""Post and get text messages."""
+"""Read, write and delete text messages."""
 from datetime import datetime, timezone
 from typing import Annotated
 from typing_extensions import Self
@@ -6,14 +6,22 @@ import uuid
 import logging
 import os
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Query, Path
 from pydantic import BaseModel, StringConstraints
 import boto3
 from boto3.dynamodb.conditions import Key
 
+PK_VALUE = 1  # Arbitrary universal partition key value for GSI
+MAX_ID_LENGTH = 39  # This is a 128-bit number
+MAX_PAGE_SIZE = 30
+DEFAULT_PAGE_SIZE = 10
+ARBITRARY_ID = "1"
+MAX_NAME_LENGTH = 20
+MAX_MESSAGE_LENGTH = 200
+
 DB_TABLE_NAME = os.environ['DB_TABLE_NAME']
-PK_VALUE = 1
 logger = logging.getLogger()
+router = APIRouter(tags=["Message"])
 
 if os.environ.get('TEST'):
     logger.info('Local test mode: using database %s', DB_TABLE_NAME)
@@ -26,8 +34,8 @@ else:
 
 
 class InputMessage(BaseModel):
-    name: Annotated[str, StringConstraints(max_length=20)]
-    text: Annotated[str, StringConstraints(max_length=200)]
+    name: Annotated[str, StringConstraints(max_length=MAX_NAME_LENGTH)]
+    text: Annotated[str, StringConstraints(max_length=MAX_MESSAGE_LENGTH)]
 
 
 class StoredMessage(InputMessage):
@@ -48,18 +56,42 @@ class StoredMessage(InputMessage):
                   "name": self.name, "text": self.text})
 
 
-router = APIRouter(tags=["Message"])
+@router.get("/{id}", status_code=status.HTTP_200_OK)
+def read_message_by_id(
+        id: Annotated[str, Path(max_length=MAX_ID_LENGTH)]
+                      ) -> StoredMessage | None:
+    """Get message using its id."""
+    data = dynamo_table.get_item(Key={"id": id})
+    return data.get("Item", None)
 
 
 @router.get("/", status_code=status.HTTP_200_OK)
-def read_messages() -> list[StoredMessage]:
-    """Get message(s), sorted by timestamp, most recent first."""
-    response = dynamo_table.query(
+def read_messages(
+        before_timestamp: Annotated[int, Query(gt=0)],
+        before_id: Annotated[
+            str | None, Query(max_length=MAX_ID_LENGTH)] = None,
+        limit: Annotated[
+            int, Query(gt=0, le=MAX_PAGE_SIZE)] = DEFAULT_PAGE_SIZE
+        ) -> list[StoredMessage]:
+    """Get paginated message(s), sorted by timestamp, most recent first.
+
+    An end timestamp must be specified. Optionally an ending
+    id can also be specified (all items prior to this will be returned).
+    The page size limit can also be specified.
+    """
+    if not before_id:
+        before_id = ARBITRARY_ID
+    msgs = dynamo_table.query(
         IndexName="gsi",
         ScanIndexForward=False,
         KeyConditionExpression=(
-            Key("pk").eq(PK_VALUE) & Key("timestamp").gt(0)))
-    return response['Items']
+            Key("pk").eq(PK_VALUE)
+            & Key("timestamp").lte(before_timestamp)),
+        Limit=limit,
+        ExclusiveStartKey={'id': before_id, 'pk': PK_VALUE,
+                           'timestamp': before_timestamp}
+        ).get("Items", [])
+    return msgs
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
@@ -74,26 +106,3 @@ def write_message(message: InputMessage) -> StoredMessage:
 def delete_message(id: str) -> None:
     """Delete a message."""
     dynamo_table.delete_item(Key={"id": id})
-
-
-# As above but with pagination in groups of 2, and change query criteria
-# print()
-# results = []
-# scan_kwargs = {
-#     "IndexName": "gsi",
-#     "ScanIndexForward": False,
-#     "KeyConditionExpression": (
-#         Key("pk").eq(1) & Key("timestamp").lt(int(ts - 1))),
-#     "Limit": 2
-# }
-# done = False
-# start_key = None
-# while not done:
-#     if start_key:
-#         scan_kwargs["ExclusiveStartKey"] = start_key
-#     response = dynamo_table.query(**scan_kwargs)
-#     new_results = response.get("Items", [])
-#     print(new_results)
-#     results.extend(new_results)
-#     start_key = response.get("LastEvaluatedKey", None)
-#     done = start_key is None

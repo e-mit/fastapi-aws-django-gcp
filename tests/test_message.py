@@ -35,8 +35,27 @@ def test_post_message():
     assert timestamp_is_recent(msg['timestamp'])
 
 
-def test_get_message():
-    response = client.get("/")
+def test_get_message_by_id():
+    TEST_ID = "12345"
+    response = client.get(f"/{TEST_ID}")
+    assert response.status_code == 200
+    assert response.json() is None
+    msg = message.StoredMessage.create(
+        message.InputMessage(name="my name", text="Test text"))
+    msg.id = TEST_ID
+    msg.post()
+    response = client.get(f"/{TEST_ID}")
+    assert response.status_code == 200
+    data = response.json()
+    assert timestamp_is_recent(data['timestamp'])
+    for field in ['name', 'text', 'id']:
+        assert data[field] == getattr(msg, field)
+
+
+def test_get_messages():
+    ts_now = int(datetime.now(tz=timezone.utc).timestamp()) + 1
+    response = client.get(
+        f"?before_timestamp={ts_now}&limit={message.MAX_PAGE_SIZE}")
     assert response.status_code == 200
     start_qty = len(response.json())
 
@@ -47,7 +66,9 @@ def test_get_message():
     msg2 = message.StoredMessage.create(
         message.InputMessage(name="John Smith", text="This is a test."))
     msg2.post()
-    response = client.get("/")
+    ts_now = int(datetime.now(tz=timezone.utc).timestamp()) + 1
+    response = client.get(
+        f"?before_timestamp={ts_now}&limit={message.MAX_PAGE_SIZE}")
     assert response.status_code == 200
     data = response.json()
     assert len(data) == (start_qty + 2)
@@ -61,14 +82,10 @@ def test_get_message():
         assert data[1][field] == getattr(msg1, field)
 
 
-def db_contains_id(id: str):
-    response = client.get("/")
+def db_contains_id(id: str) -> bool:
+    response = client.get(f"/{id}")
     assert response.status_code == 200
-    all_data = response.json()
-    found_id = False
-    for data in all_data:
-        found_id = found_id or (data['id'] == id)
-    return found_id
+    return response.json() is not None
 
 
 def test_delete_message():
@@ -79,6 +96,6 @@ def test_delete_message():
     assert db_contains_id(msg.id)
 
     response = client.delete(f"/{msg.id}")
-    assert response.status_code == 200
+    assert response.status_code == 204
 
     assert not db_contains_id(msg.id)
