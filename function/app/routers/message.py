@@ -51,7 +51,7 @@ class StoredMessage(InputMessage):
 router = APIRouter(tags=["Message"])
 
 
-@router.get("/")
+@router.get("/", status_code=status.HTTP_200_OK)
 def read_messages() -> list[StoredMessage]:
     """Get message(s), sorted by timestamp, most recent first."""
     response = dynamo_table.query(
@@ -63,15 +63,15 @@ def read_messages() -> list[StoredMessage]:
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-def write_message(message: InputMessage):
+def write_message(message: InputMessage) -> StoredMessage:
     """Post a message."""
     msg = StoredMessage.create(message)
     msg.post()
     return msg
 
 
-@router.delete("/{id}")
-def delete_message(id: str):
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_message(id: str) -> None:
     """Delete a message."""
     dynamo_table.delete_item(Key={"id": id})
 
