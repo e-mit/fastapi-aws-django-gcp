@@ -24,4 +24,4 @@ aws dynamodb create-table \
                 \"WriteCapacityUnits\": 3
             }
         }
-    ]"
+    ]" &> /dev/null
