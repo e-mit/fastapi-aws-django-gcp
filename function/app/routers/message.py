@@ -1,5 +1,5 @@
 """Read, write and delete text messages."""
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Annotated
 from typing_extensions import Self
 import uuid
@@ -18,6 +18,7 @@ DEFAULT_PAGE_SIZE = 10
 ARBITRARY_ID = "1"
 MAX_NAME_LENGTH = 20
 MAX_MESSAGE_LENGTH = 200
+ARBITRARY_SECONDS_OFFSET = 500
 
 DB_TABLE_NAME = os.environ['DB_TABLE_NAME']
 logger = logging.getLogger()
@@ -67,7 +68,7 @@ def read_message_by_id(
 
 @router.get("/", status_code=status.HTTP_200_OK)
 def read_messages(
-        before_timestamp_ms: Annotated[int, Query(gt=0)],
+        before_timestamp_ms: Annotated[int | None, Query(gt=0)] = None,
         before_id: Annotated[
             str | None, Query(max_length=MAX_ID_LENGTH)] = None,
         limit: Annotated[
@@ -75,10 +76,15 @@ def read_messages(
         ) -> list[StoredMessage]:
     """Get paginated message(s), sorted by timestamp, most recent first.
 
-    An end timestamp must be specified. Optionally an ending
+    Get all messages at or before the specified timestamp, or without time
+    restriction if no timestamp is provided. Optionally an ending
     id can also be specified (all items prior to this will be returned).
-    The page size limit can also be specified.
+    The page size limit can also be set.
     """
+    if not before_timestamp_ms:
+        # Get a timestamp in the future
+        before_timestamp_ms = int(
+            (datetime.now().timestamp() + ARBITRARY_SECONDS_OFFSET)*1000)
     if not before_id:
         before_id = ARBITRARY_ID
     msgs = dynamo_table.query(
