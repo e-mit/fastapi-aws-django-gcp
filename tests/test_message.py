@@ -1,8 +1,9 @@
 """Tests for message.py"""
-from datetime import datetime, timezone
+from datetime import datetime
 import time
 
 from fastapi.testclient import TestClient
+import pytest
 
 from function.app.routers import message
 
@@ -54,7 +55,7 @@ def test_get_message_by_id():
 def test_get_messages():
     ts_now = int(datetime.now().timestamp()*1000)
     response = client.get(
-        f"?before_timestamp_ms={ts_now}&limit={message.MAX_PAGE_SIZE}")
+        f"?timestamp_ms={ts_now}&limit={message.MAX_PAGE_SIZE}")
     assert response.status_code == 200
     start_qty = len(response.json())
 
@@ -67,7 +68,7 @@ def test_get_messages():
     msg2.post()
     ts_now = int(datetime.now().timestamp()*1000)
     response = client.get(
-        f"?before_timestamp_ms={ts_now}&limit={message.MAX_PAGE_SIZE}")
+        f"?timestamp_ms={ts_now}&limit={message.MAX_PAGE_SIZE}")
     assert response.status_code == 200
     data = response.json()
     assert len(data) == (start_qty + 2)
@@ -95,3 +96,168 @@ def test_delete_message():
     response = client.delete(f"/{msg.id}")
     assert response.status_code == 204
     assert not db_contains_id(msg.id)
+
+
+def delete_all():
+    future_ts = int((datetime.now().timestamp() + 1000)*1000)
+    response = client.get(f"?timestamp_ms={future_ts}"
+                          f"&limit={message.MAX_PAGE_SIZE}")
+    assert response.status_code == 200
+    data = response.json()
+    for item in data:
+        response = client.delete(f"/{item['id']}")
+        assert response.status_code == 204
+    response = client.get(f"?timestamp_ms={future_ts}"
+                          f"&limit={message.MAX_PAGE_SIZE}")
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+def test_delete_all():
+    msg1 = message.StoredMessage.create(
+        message.InputMessage(name="me", text="Test text"))
+    msg1.post()
+    time.sleep(4)
+    msg2 = message.StoredMessage.create(
+        message.InputMessage(name="John Smith", text="This is a test."))
+    msg2.post()
+
+    future_ts = int((datetime.now().timestamp() + 1000)*1000)
+    response = client.get(f"?timestamp_ms={future_ts}"
+                          f"&limit={message.MAX_PAGE_SIZE}")
+    assert response.status_code == 200
+    assert response.json() != []
+    delete_all()
+
+
+TIMESTEP = 10000
+
+
+@pytest.fixture
+def prepare_db() -> list[message.StoredMessage]:
+    """Clear all messages, then add a series of new ones. Return end time."""
+    delete_all()
+    msg_data = []
+
+    ts_ms = int(datetime.now().timestamp()*1000)
+    for n in range(0, 3):
+        msg = message.StoredMessage.create(
+            message.InputMessage(name=f"msg{n}", text=f"Test text {n}"))
+        msg.timestamp_ms = ts_ms - (TIMESTEP * n)
+        msg.post()
+        msg_data.append(msg)
+
+    # Add 4 messages with same timestamp:
+    for n in range(3, 7):
+        msg = message.StoredMessage.create(
+            message.InputMessage(name=f"msg{n}", text=f"Test text {n}"))
+        msg.timestamp_ms = ts_ms - (TIMESTEP * 3)
+        msg.post()
+        msg_data.append(msg)
+
+    for n in range(7, 9):
+        msg = message.StoredMessage.create(
+            message.InputMessage(name=f"msg{n}", text=f"Test text {n}"))
+        msg.timestamp_ms = ts_ms - (TIMESTEP * n)
+        msg.post()
+        msg_data.append(msg)
+
+    return msg_data
+
+
+def test_exclude_newer(prepare_db):
+    ts = int(prepare_db[0].timestamp_ms - (0.5 * TIMESTEP))
+    response = client.get(f"?timestamp_ms={ts}")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 8
+    for item in data:
+        assert item['timestamp_ms'] < ts
+
+
+def test_query_without_id(prepare_db):
+    """A match of timestamp without id should include that message."""
+    response = client.get(f"?timestamp_ms={prepare_db[1].timestamp_ms}")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 8
+    ok = False
+    for item in data:
+        ok = ok or (item['name'] == "msg1")
+    assert ok
+
+
+def test_query_with_id(prepare_db):
+    """A match of both timestamp and id should exclude that message."""
+    response = client.get(f"?timestamp_ms={prepare_db[1].timestamp_ms}"
+                          f"&before_id={prepare_db[1].id}")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 7
+    ok = True
+    for item in data:
+        ok = ok and (item['name'] != "msg1")
+    assert ok
+
+
+def test_query_with_id_no_time(prepare_db):
+    """A match of id but no timestamp should select all."""
+    response = client.get(f"?before_id={prepare_db[1].id}")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 9
+
+
+def test_query_blank(prepare_db):
+    """No query params should select all."""
+    response = client.get("")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 9
+
+
+def test_pagination(prepare_db):
+    ts = int(prepare_db[0].timestamp_ms - (0.5 * TIMESTEP))
+    response = client.get(f"?timestamp_ms={ts}&limit=2")
+    assert response.status_code == 200
+    all_data = response.json()
+    assert len(all_data) == 2
+    data = all_data
+
+    for rep in range(0, 4):
+        response = client.get(f"?timestamp_ms={data[1]['timestamp_ms']}"
+                              f"&before_id={data[1]['id']}&limit=2")
+        assert response.status_code == 200
+        data = response.json()
+        all_data.extend(data)
+        if rep == 3:
+            assert len(data) == 0
+        else:
+            assert len(data) == 2
+
+    assert len(all_data) == 8
+    assert len({x['id'] for x in all_data}) == 8
+
+
+def test_duplicated_timestamp_no_id(prepare_db):
+    """Messages with duplicated timestamps should all be included if no id."""
+    response = client.get(f"?timestamp_ms={prepare_db[3].timestamp_ms}")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 6
+
+
+def test_duplicated_timestamp_with_id(prepare_db):
+    """If an id is specified, can get some of the messages."""
+    response = client.get(f"?timestamp_ms={prepare_db[3].timestamp_ms}"
+                          f"&before_id={prepare_db[3].id}")
+    assert response.status_code == 200
+    data1 = response.json()
+    response = client.get(f"?timestamp_ms={prepare_db[4].timestamp_ms}"
+                          f"&before_id={prepare_db[4].id}")
+    assert response.status_code == 200
+    data2 = response.json()
+    # at least one of these responses must include at least one of the
+    # messages with a duplicate timestamp, but not all of them.
+    assert max([len(data1), len(data2)]) > 2
+    assert max([len(data1), len(data2)]) < 6

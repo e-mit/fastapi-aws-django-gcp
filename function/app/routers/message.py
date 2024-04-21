@@ -18,7 +18,7 @@ DEFAULT_PAGE_SIZE = 10
 ARBITRARY_ID = "1"
 MAX_NAME_LENGTH = 20
 MAX_MESSAGE_LENGTH = 200
-ARBITRARY_SECONDS_OFFSET = 500
+FUTURE_SECONDS_OFFSET = 500
 
 DB_TABLE_NAME = os.environ['DB_TABLE_NAME']
 logger = logging.getLogger()
@@ -68,36 +68,41 @@ def read_message_by_id(
 
 @router.get("/", status_code=status.HTTP_200_OK)
 def read_messages(
-        before_timestamp_ms: Annotated[int | None, Query(gt=0)] = None,
+        timestamp_ms: Annotated[int | None, Query(gt=0)] = None,
         before_id: Annotated[
             str | None, Query(max_length=MAX_ID_LENGTH)] = None,
         limit: Annotated[
             int, Query(gt=0, le=MAX_PAGE_SIZE)] = DEFAULT_PAGE_SIZE
         ) -> list[StoredMessage]:
-    """Get paginated message(s), sorted by timestamp, most recent first.
+    """Get paginated messages, sorted by timestamp, most recent first.
 
-    Get all messages at or before the specified timestamp, or without time
-    restriction if no timestamp is provided. Optionally an ending
-    id can also be specified (all items prior to this will be returned).
+    Get all messages posted at or before the specified timestamp, or all
+    messages if no timestamp is provided.
+    Optionally, an ending id can also be specified (all items prior to
+    this will be returned), allowing unique pagination even if
+    timestamps are duplicated.
     The page size limit can also be set.
     """
-    if not before_timestamp_ms:
+    if not timestamp_ms:
         # Get a timestamp in the future
-        before_timestamp_ms = int(
-            (datetime.now().timestamp() + ARBITRARY_SECONDS_OFFSET)*1000)
-    if not before_id:
-        before_id = ARBITRARY_ID
-    msgs = dynamo_table.query(
-        IndexName="gsi",
-        ScanIndexForward=False,
-        KeyConditionExpression=(
+        timestamp_ms = int(
+            (datetime.now().timestamp() + FUTURE_SECONDS_OFFSET)*1000)
+
+    query_args = {
+        "IndexName": "gsi",
+        "ScanIndexForward": False,
+        "KeyConditionExpression": (
             Key("pk").eq(PK_VALUE)
-            & Key("timestamp_ms").lte(before_timestamp_ms)),
-        Limit=limit,
-        ExclusiveStartKey={'id': before_id, 'pk': PK_VALUE,
-                           'timestamp_ms': before_timestamp_ms}
-        ).get("Items", [])
-    return msgs
+            & Key("timestamp_ms").lte(timestamp_ms)),
+        "Limit": limit
+    }
+
+    if before_id:
+        query_args["ExclusiveStartKey"] = {
+            'id': before_id, 'pk': PK_VALUE,
+            'timestamp_ms': timestamp_ms}
+
+    return dynamo_table.query(**query_args).get("Items", [])
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
