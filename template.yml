@@ -124,7 +124,7 @@ Resources:
           AttributeName: "pk"
           AttributeType: "N"
         -
-          AttributeName: "timestamp"
+          AttributeName: "timestamp_ms"
           AttributeType: "N"
       KeySchema:
         -
@@ -146,7 +146,7 @@ Resources:
               AttributeName: "pk"
               KeyType: "HASH"
             -
-              AttributeName: "timestamp"
+              AttributeName: "timestamp_ms"
               KeyType: "RANGE"
           Projection:
             ProjectionType: "ALL"

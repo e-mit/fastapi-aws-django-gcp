@@ -40,19 +40,19 @@ class InputMessage(BaseModel):
 
 class StoredMessage(InputMessage):
     id: str
-    timestamp: datetime
+    timestamp_ms: int
 
     @classmethod
     def create(cls, message: InputMessage) -> Self:
         msg = cls(name=message.name, text=message.text,
                   id=str(uuid.uuid4().int),
-                  timestamp=datetime.now(tz=timezone.utc))
+                  timestamp_ms=int(datetime.now().timestamp()*1000))
         return msg
 
     def post(self):
         dynamo_table.put_item(
             Item={"pk": PK_VALUE, "id": self.id,
-                  "timestamp": int(self.timestamp.timestamp()),
+                  "timestamp_ms": self.timestamp_ms,
                   "name": self.name, "text": self.text})
 
 
@@ -67,7 +67,7 @@ def read_message_by_id(
 
 @router.get("/", status_code=status.HTTP_200_OK)
 def read_messages(
-        before_timestamp: Annotated[int, Query(gt=0)],
+        before_timestamp_ms: Annotated[int, Query(gt=0)],
         before_id: Annotated[
             str | None, Query(max_length=MAX_ID_LENGTH)] = None,
         limit: Annotated[
@@ -86,10 +86,10 @@ def read_messages(
         ScanIndexForward=False,
         KeyConditionExpression=(
             Key("pk").eq(PK_VALUE)
-            & Key("timestamp").lte(before_timestamp)),
+            & Key("timestamp_ms").lte(before_timestamp_ms)),
         Limit=limit,
         ExclusiveStartKey={'id': before_id, 'pk': PK_VALUE,
-                           'timestamp': before_timestamp}
+                           'timestamp_ms': before_timestamp_ms}
         ).get("Items", [])
     return msgs
 

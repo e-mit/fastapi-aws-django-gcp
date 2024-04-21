@@ -7,7 +7,7 @@ aws dynamodb create-table \
     --attribute-definitions \
         AttributeName=id,AttributeType=S \
         AttributeName=pk,AttributeType=N \
-        AttributeName=timestamp,AttributeType=N \
+        AttributeName=timestamp_ms,AttributeType=N \
     --key-schema AttributeName=id,KeyType=HASH \
     --provisioned-throughput ReadCapacityUnits=3,WriteCapacityUnits=3 \
     --table-class STANDARD \
@@ -17,7 +17,7 @@ aws dynamodb create-table \
         {
             \"IndexName\": \"gsi\",
             \"KeySchema\": [{\"AttributeName\":\"pk\",\"KeyType\":\"HASH\"},
-                            {\"AttributeName\":\"timestamp\",\"KeyType\":\"RANGE\"}],
+                            {\"AttributeName\":\"timestamp_ms\",\"KeyType\":\"RANGE\"}],
             \"Projection\":{\"ProjectionType\":\"ALL\"},
             \"ProvisionedThroughput\": {
                 \"ReadCapacityUnits\": 3,
