@@ -7,16 +7,6 @@ Parameters:
     Type: String
     MinLength: 1
     MaxLength: 100
-  VPCsecurityGroupID:
-    Description: The ID of the security group in the VPC
-    Type: String
-    MinLength: 1
-    MaxLength: 300
-  VPCsubnetIDlist:
-    Description: A comma-separated list (in one string) of subnet IDs in the VPC
-    Type: String
-    MinLength: 1
-    MaxLength: 300
   timeout:
     Description: Timeout in seconds for the lambda
     Type: Number
@@ -70,7 +60,6 @@ Resources:
       Policies:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
-        - AWSLambdaVPCAccessExecutionRole
         - !Ref accessPolicy
       Layers:
         - Ref: libs
@@ -79,10 +68,6 @@ Resources:
           Type: HttpApi
           Properties:
             ApiId: !Ref apiGateway
-      VpcConfig:
-        SecurityGroupIds:
-          - !Ref VPCsecurityGroupID
-        SubnetIds: !Split [",", !Ref VPCsubnetIDlist]
       LoggingConfig:
         LogFormat: Text
         LogGroup: !Ref logGroup

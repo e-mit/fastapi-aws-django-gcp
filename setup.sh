@@ -5,28 +5,9 @@
 
 ####################################################
 
-# Get the Security Group ID corresponding to SEC_GRP_NAME
-SEC_GRP_ID=$(aws ec2 describe-security-groups \
---group-names $SEC_GRP_NAME | \
-python3 -c \
-"import sys, json
-print(json.load(sys.stdin)['SecurityGroups'][0]['GroupId'])")
+source stack.sh $NAME_PREFIX create "timeout=$LAMBDA_TIMEOUT_SEC"
 
-# List the subnets which the RDS is on
-SUBNETS=$(aws rds describe-db-instances \
---db-instance-identifier $RDS_INSTANCE_NAME | \
-python3 -c \
-"import sys, json
-sng = json.load(sys.stdin)['DBInstances'][0]['DBSubnetGroup']
-subnets = sng['Subnets'][0]['SubnetIdentifier']
-for s in sng['Subnets'][1:]:
-    subnets += (',' + s['SubnetIdentifier'])
-print(subnets)")
-
-
-source stack.sh $NAME_PREFIX create \
-"VPCsecurityGroupID=$SEC_GRP_ID VPCsubnetIDlist=$SUBNETS timeout=$LAMBDA_TIMEOUT_SEC"
-
+DB_TABLE_NAME=$NAME_PREFIX-function-dynamodb
 
 # Add environment variables to the lambda
 aws lambda update-function-configuration \
