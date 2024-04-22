@@ -39,16 +39,6 @@ fi
 # Prevent terminal output waiting:
 export AWS_PAGER=""
 
-_check_for_existing_stack() {
-    aws cloudformation describe-stacks \
-    --stack-name $STACK_NAME >/dev/null 2>&1
-
-    if [[ "$?" -eq 0 ]]; then
-        echo "ERROR: stack $STACK_NAME already exists. The stack was not updated."
-        return 1
-    fi
-}
-
 _make_names() {
     FUNCTION_NAME="${STACK_NAME}-function"
     # Note: bucket name must be lower case only, and globally unique
@@ -104,7 +94,6 @@ _prepare_packages() {
 
 create() {
     _make_names
-    _check_for_existing_stack
     _prepare_packages
     echo "Creating $STACK_NAME with Lambda $FUNCTION_NAME..."
 

@@ -4,18 +4,20 @@
 #########################################################
 
 # Stack name and name prefix for the resources to be created
-NAME_PREFIX=testapi
+export NAME_PREFIX=testapi
 
 # Lambda CloudWatch log level
-LOG_LEVEL=DEBUG
+export LOG_LEVEL=DEBUG
 
 # Lambda timeout:
-LAMBDA_TIMEOUT_SEC=10
+export LAMBDA_TIMEOUT_SEC=10
 
 # The name of the RDS instance whose VPC is required
-RDS_INSTANCE_NAME=testdbi
+export RDS_INSTANCE_NAME=testdbi
 
 # Security group in the database's VPC to use
-SEC_GRP_NAME=lambda-rds-1
+export SEC_GRP_NAME=lambda-rds-1
+
+export DB_TABLE_NAME=$NAME_PREFIX-function-dynamodb
 
 # TODO: make new security group

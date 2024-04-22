@@ -31,4 +31,5 @@ source stack.sh $NAME_PREFIX create \
 # Add environment variables to the lambda
 aws lambda update-function-configuration \
 --function-name $FUNCTION_NAME \
---environment "Variables={LOG_LEVEL=$LOG_LEVEL}" &> /dev/null
+--environment "Variables={LOG_LEVEL=$LOG_LEVEL, \
+DB_TABLE_NAME=$DB_TABLE_NAME}" &> /dev/null
