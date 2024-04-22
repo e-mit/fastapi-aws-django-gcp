@@ -51,7 +51,7 @@ Resources:
               - "dynamodb:Query"
               - "dynamodb:Scan"
               - "dynamodb:UpdateItem"
-            Resource: !Ref dynamoDB
+            Resource: !GetAtt dynamoDB.Arn
 
   function:
     Type: AWS::Serverless::Function
