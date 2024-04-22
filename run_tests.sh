@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Run the FastAPI app locally, using a temporary
+# test dynamoDB instance, and run unit tests.
+
 rm -rf package
 
 export DB_TABLE_NAME=testTable

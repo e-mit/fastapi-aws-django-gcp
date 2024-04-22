@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Run the FastAPI app locally, using a temporary test dynamoDB instance
+
 export DB_TABLE_NAME=testTable
 export TEST=true
 
