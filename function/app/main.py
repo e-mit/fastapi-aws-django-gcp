@@ -7,6 +7,8 @@ from fastapi.responses import RedirectResponse
 from .routers import users, message
 
 VERSION = "0.1.0"
+USERS_PREFIX = "users"
+MESSAGE_PREFIX = "message"
 
 app = FastAPI(
     title="FastAPI demo",
@@ -47,9 +49,10 @@ async def get_favicon() -> RedirectResponse:
 
 app.include_router(
     users.router,
-    prefix="/users"
+    prefix=f"/{USERS_PREFIX}"
 )
+
 app.include_router(
     message.router,
-    prefix="/message"
+    prefix=f"/{MESSAGE_PREFIX}"
 )

@@ -17,6 +17,6 @@ sleep 5
 
 ./create_test_table.sh
 
-python -m pytest -p no:cacheprovider
+python -m pytest tests -p no:cacheprovider
 
 docker stop -t 0 dynamodb_test_local

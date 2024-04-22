@@ -11,3 +11,5 @@ httpx
 python-dateutil
 types-python-dateutil
 boto3-stubs
+requests
+types-requests
