@@ -18,8 +18,8 @@ def test_post_and_delete_message():
     assert msg['name'] == test_message['name']
     assert msg['text'] == test_message['text']
     assert timestamp_is_recent(msg['timestamp_ms'])
-    assert isinstance(msg['id'], int)
+    assert isinstance(msg['id'], str)
     response = requests.delete(os.path.join(CLOUD_URL,
                                             MESSAGE_PREFIX, str(msg['id'])))
     assert response.status_code == 204
-    assert response.json() == []
+    assert len(response.text) == 0
