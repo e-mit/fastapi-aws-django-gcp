@@ -24,10 +24,10 @@ CLOUD_URL=
 while [[ -z $CLOUD_URL ]]; do
     export CLOUD_URL=$(aws apigatewayv2 get-apis --no-paginate | \
     python3 -c \
-    "import sys, json
-    for item in json.load(sys.stdin)['Items']:
-        if item['Name'] == '${DB_TABLE_NAME}':
-            print(item['ApiEndpoint'])")
+"import sys, json
+for item in json.load(sys.stdin)['Items']:
+    if item['Name'] == '$NAME_PREFIX-function-apigateway':
+        print(item['ApiEndpoint'])")
     sleep 1
 done
 
