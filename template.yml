@@ -41,7 +41,9 @@ Resources:
               - "dynamodb:Query"
               - "dynamodb:Scan"
               - "dynamodb:UpdateItem"
-            Resource: !GetAtt dynamoDB.Arn
+            Resource:
+              - !GetAtt dynamoDB.Arn
+              - !Sub ${dynamoDB.Arn}/index/*
 
   function:
     Type: AWS::Serverless::Function
@@ -138,13 +140,3 @@ Resources:
           ProvisionedThroughput:
             ReadCapacityUnits: "3"
             WriteCapacityUnits: "3"
-
-Outputs:
-  ApiUrl:
-    Description: URL of the API endpoint
-    Value:
-      Fn::Sub: 'https://${apiGateway}.execute-api.${AWS::Region}.${AWS::URLSuffix}/'
-  ApiId:
-    Description: API ID
-    Value:
-      Ref: apiGateway
