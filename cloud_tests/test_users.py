@@ -1,4 +1,4 @@
-"""Tests for users.py"""
+"""Tests which call /users/ on the cloud API."""
 import os
 
 import requests

@@ -1,4 +1,4 @@
-"""Tests for main.py"""
+"""Tests which call / on the cloud API."""
 import os
 
 import requests
