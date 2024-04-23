@@ -11,5 +11,3 @@ export LOG_LEVEL=DEBUG
 
 # Lambda timeout:
 export LAMBDA_TIMEOUT_SEC=10
-
-# TODO: make new security group
