@@ -1,6 +1,7 @@
 """Tests which call /message/ on the cloud API."""
 import os
 import time
+from typing import Any
 
 import requests
 
@@ -8,6 +9,7 @@ from function.app.main import MESSAGE_PREFIX
 from tests.test_message import timestamp_is_recent
 
 CLOUD_URL = os.environ['CLOUD_URL']
+TEST_MSG_QTY = 8
 
 
 def test_post_and_delete_message():
@@ -46,21 +48,21 @@ def test_post_get_delete_message():
     assert len(response.text) == 0
 
 
-TEST_MSG_QTY = 8
-
-
-def test_get_query():
+def post_multiple_messages(number: int) -> list[dict[str, Any]]:
     data = []
-    for n in range(0, TEST_MSG_QTY):
+    for n in range(0, number):
         response = requests.post(
             os.path.join(CLOUD_URL, MESSAGE_PREFIX),
             json={"name": f"msg{n}", "text": f"Test text {n}"})
         assert response.status_code == 201
         data.append(response.json())
         time.sleep(1)
-
     # Sort data newest to oldest
-    data = data[::-1]
+    return data[::-1]
+
+
+def test_get_query():
+    data = post_multiple_messages(TEST_MSG_QTY)
 
     # Test limit:
     response = requests.get(os.path.join(CLOUD_URL,
@@ -93,3 +95,15 @@ def test_get_query():
                                                 str(data[n]['id'])))
         assert response.status_code == 204
         time.sleep(1)
+
+
+def test_delete_all():
+    post_multiple_messages(TEST_MSG_QTY)
+    response = requests.get(os.path.join(CLOUD_URL, MESSAGE_PREFIX))
+    assert response.status_code == 200
+    assert response.json() != []
+    response = requests.delete(os.path.join(CLOUD_URL, MESSAGE_PREFIX))
+    assert response.status_code == 204
+    response = requests.get(os.path.join(CLOUD_URL, MESSAGE_PREFIX))
+    assert response.status_code == 200
+    assert response.json() == []
