@@ -115,8 +115,8 @@ def write_message(message: InputMessage) -> StoredMessage:
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_message(id: str) -> None:
-    """Delete a message."""
+def delete_message_by_id(id: str) -> None:
+    """Delete a message using its ID."""
     dynamo_table.delete_item(Key={"id": id})
 
 

@@ -8,10 +8,10 @@ from function.app import main
 CLOUD_URL = os.environ['CLOUD_URL']
 
 
-def test_get_hello():
+def test_get_root():
     response = requests.get(CLOUD_URL)
     assert response.status_code == 200
-    assert response.json() == {"message": "Hello"}
+    assert response.json() == {"api_version": main.VERSION}
 
 
 def test_get_version():
