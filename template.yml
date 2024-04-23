@@ -41,6 +41,7 @@ Resources:
               - "dynamodb:Query"
               - "dynamodb:Scan"
               - "dynamodb:UpdateItem"
+              - "dynamodb:BatchWriteItem"
             Resource:
               - !GetAtt dynamoDB.Arn
               - !Sub ${dynamoDB.Arn}/index/*
