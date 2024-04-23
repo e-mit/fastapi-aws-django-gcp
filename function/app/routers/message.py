@@ -5,6 +5,7 @@ from typing_extensions import Self
 import uuid
 import logging
 import os
+import time
 
 from fastapi import APIRouter, status, Query, Path
 from pydantic import BaseModel, StringConstraints
@@ -117,3 +118,16 @@ def write_message(message: InputMessage) -> StoredMessage:
 def delete_message(id: str) -> None:
     """Delete a message."""
     dynamo_table.delete_item(Key={"id": id})
+
+
+@router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
+def delete_all() -> None:
+    """Delete all messages."""
+    DELETE_BATCH_LIMIT = 25
+    items = dynamo_table.scan(Limit=DELETE_BATCH_LIMIT).get("Items", [])
+    while len(items) > 0:
+        with dynamo_table.batch_writer() as batch:
+            for item in items:
+                batch.delete_item(Key={'id': item['id']})
+        items = dynamo_table.scan(Limit=DELETE_BATCH_LIMIT).get("Items", [])
+        time.sleep(0.1)

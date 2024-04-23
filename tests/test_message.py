@@ -98,7 +98,7 @@ def test_delete_message():
     assert not db_contains_id(msg.id)
 
 
-def delete_all():
+def delete_all_loop():
     future_ts = int((datetime.now().timestamp() + 1000)*1000)
     response = client.get(f"?timestamp_ms={future_ts}"
                           f"&limit={message.MAX_PAGE_SIZE}")
@@ -113,7 +113,7 @@ def delete_all():
     assert response.json() == []
 
 
-def test_delete_all():
+def test_delete_all_loop():
     msg1 = message.StoredMessage.create(
         message.InputMessage(name="me", text="Test text"))
     msg1.post()
@@ -127,7 +127,11 @@ def test_delete_all():
                           f"&limit={message.MAX_PAGE_SIZE}")
     assert response.status_code == 200
     assert response.json() != []
-    delete_all()
+    delete_all_loop()
+    response = client.get(f"?timestamp_ms={future_ts}"
+                          f"&limit={message.MAX_PAGE_SIZE}")
+    assert response.status_code == 200
+    assert response.json() == []
 
 
 TIMESTEP = 10000
@@ -136,7 +140,7 @@ TIMESTEP = 10000
 @pytest.fixture
 def prepare_db() -> list[message.StoredMessage]:
     """Clear all messages, then add a series of new ones. Return end time."""
-    delete_all()
+    delete_all_loop()
     msg_data = []
 
     ts_ms = int(datetime.now().timestamp()*1000)
@@ -261,3 +265,26 @@ def test_duplicated_timestamp_with_id(prepare_db):
     # messages with a duplicate timestamp, but not all of them.
     assert max([len(data1), len(data2)]) > 2
     assert max([len(data1), len(data2)]) < 6
+
+
+def test_delete_all():
+    QTY = 40
+    delete_all_loop()
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.json() == []
+    ts_ms = int(datetime.now().timestamp()*1000)
+    for n in range(0, QTY):
+        msg = message.StoredMessage.create(
+            message.InputMessage(name=f"msg{n}", text=f"Test text {n}"))
+        msg.timestamp_ms = ts_ms - (TIMESTEP * n)
+        msg.post()
+    response = client.get(f"?limit={message.MAX_PAGE_SIZE}")
+    assert response.status_code == 200
+    assert len(response.json()) == min([QTY, message.MAX_PAGE_SIZE])
+
+    response = client.delete("/")
+    assert response.status_code == 204
+    response = client.get(f"?limit={message.MAX_PAGE_SIZE}")
+    assert response.status_code == 200
+    assert len(response.json()) == 0
