@@ -18,6 +18,7 @@ MAX_PAGE_SIZE = 30
 DEFAULT_PAGE_SIZE = 10
 ARBITRARY_ID = "1"
 MAX_NAME_LENGTH = 20
+MAX_SUBJECT_LENGTH = 40
 MAX_MESSAGE_LENGTH = 200
 FUTURE_SECONDS_OFFSET = 500
 
@@ -36,8 +37,12 @@ else:
 
 
 class InputMessage(BaseModel):
-    name: Annotated[str, StringConstraints(max_length=MAX_NAME_LENGTH)]
-    text: Annotated[str, StringConstraints(max_length=MAX_MESSAGE_LENGTH)]
+    name: Annotated[str, StringConstraints(
+        max_length=MAX_NAME_LENGTH, min_length=1)]
+    subject: Annotated[str, StringConstraints(
+        max_length=MAX_SUBJECT_LENGTH, min_length=1)]
+    text: Annotated[str, StringConstraints(
+        max_length=MAX_MESSAGE_LENGTH, min_length=1)]
 
 
 class StoredMessage(InputMessage):
@@ -46,8 +51,8 @@ class StoredMessage(InputMessage):
 
     @classmethod
     def create(cls, message: InputMessage) -> Self:
-        msg = cls(name=message.name, text=message.text,
-                  id=str(uuid.uuid4().int),
+        msg = cls(name=message.name, subject=message.subject,
+                  text=message.text, id=str(uuid.uuid4().int),
                   timestamp_ms=int(datetime.now().timestamp()*1000))
         return msg
 
@@ -55,7 +60,8 @@ class StoredMessage(InputMessage):
         dynamo_table.put_item(
             Item={"pk": PK_VALUE, "id": self.id,
                   "timestamp_ms": self.timestamp_ms,
-                  "name": self.name, "text": self.text})
+                  "name": self.name, "subject": self.subject,
+                  "text": self.text})
 
 
 @router.get("/{id}", status_code=status.HTTP_200_OK)

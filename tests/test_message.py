@@ -18,20 +18,23 @@ def timestamp_is_recent(timestamp_ms: int,
 
 
 def test_create_stored_message():
-    msg = message.InputMessage(name="me", text="Test text")
+    msg = message.InputMessage(name="me", subject="hello", text="Test text")
     stored_msg = message.StoredMessage.create(msg)
     stored_msg2 = message.StoredMessage.create(msg)
     assert msg.name == stored_msg.name
+    assert msg.subject == stored_msg.subject
     assert msg.text == stored_msg.text
     assert stored_msg.id != stored_msg2.id
     assert timestamp_is_recent(stored_msg.timestamp_ms)
 
 
 def test_post_message():
-    response = client.post("/", json={"name": "Bob", "text": "Hello"})
+    data = {"name": "Bob", "subject": "hi", "text": "Hello"}
+    response = client.post("/", json=data)
     assert response.status_code == 201
     msg = response.json()
-    assert msg['text'] == "Hello"
+    for k in data:
+        assert msg[k] == data[k]
     assert timestamp_is_recent(msg['timestamp_ms'])
 
 
@@ -41,14 +44,15 @@ def test_get_message_by_id():
     assert response.status_code == 200
     assert response.json() is None
     msg = message.StoredMessage.create(
-        message.InputMessage(name="my name", text="Test text"))
+        message.InputMessage(name="my name", subject="the subject",
+                             text="Test text"))
     msg.id = TEST_ID
     msg.post()
     response = client.get(f"/{TEST_ID}")
     assert response.status_code == 200
     data = response.json()
     assert timestamp_is_recent(data['timestamp_ms'])
-    for field in ['name', 'text', 'id']:
+    for field in ['name', 'subject', 'text', 'id']:
         assert data[field] == getattr(msg, field)
 
 
@@ -60,11 +64,12 @@ def test_get_messages():
     start_qty = len(response.json())
 
     msg1 = message.StoredMessage.create(
-        message.InputMessage(name="me", text="Test text"))
+        message.InputMessage(name="me", subject="subj", text="Test text"))
     msg1.post()
     time.sleep(4)
     msg2 = message.StoredMessage.create(
-        message.InputMessage(name="John Smith", text="This is a test."))
+        message.InputMessage(name="John Smith", subject="hi",
+                             text="This is a test."))
     msg2.post()
     ts_now = int(datetime.now().timestamp()*1000)
     response = client.get(
@@ -76,7 +81,7 @@ def test_get_messages():
     assert data[0]['timestamp_ms'] != data[1]['timestamp_ms']
     assert timestamp_is_recent(data[0]['timestamp_ms'])
     assert timestamp_is_recent(data[1]['timestamp_ms'], 5)
-    for field in ['name', 'text', 'id']:
+    for field in ['name', 'text', 'subject', 'id']:
         # Item 0 should be most recent:
         assert data[0][field] == getattr(msg2, field)
         assert data[1][field] == getattr(msg1, field)
@@ -90,7 +95,8 @@ def db_contains_id(id: str) -> bool:
 
 def test_delete_message():
     msg = message.StoredMessage.create(
-        message.InputMessage(name="me", text="Hello text"))
+        message.InputMessage(name="me", subject="subject text",
+                             text="Hello text"))
     msg.post()
     assert db_contains_id(msg.id)
     response = client.delete(f"/{msg.id}")
@@ -115,11 +121,12 @@ def delete_all_loop():
 
 def test_delete_all_loop():
     msg1 = message.StoredMessage.create(
-        message.InputMessage(name="me", text="Test text"))
+        message.InputMessage(name="me", subject="hi", text="Test text"))
     msg1.post()
     time.sleep(4)
     msg2 = message.StoredMessage.create(
-        message.InputMessage(name="John Smith", text="This is a test."))
+        message.InputMessage(name="John Smith", subject="the subject",
+                             text="This is a test."))
     msg2.post()
 
     future_ts = int((datetime.now().timestamp() + 1000)*1000)
@@ -146,7 +153,8 @@ def prepare_db() -> list[message.StoredMessage]:
     ts_ms = int(datetime.now().timestamp()*1000)
     for n in range(0, 3):
         msg = message.StoredMessage.create(
-            message.InputMessage(name=f"msg{n}", text=f"Test text {n}"))
+            message.InputMessage(name=f"msg{n}", subject=f"subject{n}",
+                                 text=f"Test text {n}"))
         msg.timestamp_ms = ts_ms - (TIMESTEP * n)
         msg.post()
         msg_data.append(msg)
@@ -154,14 +162,16 @@ def prepare_db() -> list[message.StoredMessage]:
     # Add 4 messages with same timestamp:
     for n in range(3, 7):
         msg = message.StoredMessage.create(
-            message.InputMessage(name=f"msg{n}", text=f"Test text {n}"))
+            message.InputMessage(name=f"msg{n}", subject=f"subj{n}",
+                                 text=f"Test text {n}"))
         msg.timestamp_ms = ts_ms - (TIMESTEP * 3)
         msg.post()
         msg_data.append(msg)
 
     for n in range(7, 9):
         msg = message.StoredMessage.create(
-            message.InputMessage(name=f"msg{n}", text=f"Test text {n}"))
+            message.InputMessage(name=f"msg{n}", subject=f"subj{n}",
+                                 text=f"Test text {n}"))
         msg.timestamp_ms = ts_ms - (TIMESTEP * n)
         msg.post()
         msg_data.append(msg)
@@ -276,7 +286,8 @@ def test_delete_all():
     ts_ms = int(datetime.now().timestamp()*1000)
     for n in range(0, QTY):
         msg = message.StoredMessage.create(
-            message.InputMessage(name=f"msg{n}", text=f"Test text {n}"))
+            message.InputMessage(name=f"msg{n}", subject=f"subj{n}",
+                                 text=f"Test text {n}"))
         msg.timestamp_ms = ts_ms - (TIMESTEP * n)
         msg.post()
     response = client.get(f"?limit={message.MAX_PAGE_SIZE}")

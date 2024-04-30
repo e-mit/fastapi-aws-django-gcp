@@ -13,13 +13,15 @@ TEST_MSG_QTY = 8
 
 
 def test_post_and_delete_message():
-    test_message = {"name": "Test name", "text": "Hello this is a test."}
+    test_message = {"name": "Test name", "subject": "test",
+                    "text": "Hello this is a test."}
     response = requests.post(os.path.join(CLOUD_URL, MESSAGE_PREFIX),
                              json=test_message)
     assert response.status_code == 201
     msg = response.json()
     assert msg['name'] == test_message['name']
     assert msg['text'] == test_message['text']
+    assert msg['subject'] == test_message['subject']
     assert timestamp_is_recent(msg['timestamp_ms'])
     assert isinstance(msg['id'], str)
     response = requests.delete(os.path.join(CLOUD_URL,
@@ -29,13 +31,15 @@ def test_post_and_delete_message():
 
 
 def test_post_get_delete_message():
-    test_message = {"name": "Test name2", "text": "Hi this is a test."}
+    test_message = {"name": "Test name2", "subject": "test2",
+                    "text": "Hi this is a test."}
     response = requests.post(os.path.join(CLOUD_URL, MESSAGE_PREFIX),
                              json=test_message)
     assert response.status_code == 201
     msg = response.json()
     assert msg['name'] == test_message['name']
     assert msg['text'] == test_message['text']
+    assert msg['subject'] == test_message['subject']
     assert timestamp_is_recent(msg['timestamp_ms'])
     assert isinstance(msg['id'], str)
     response = requests.get(os.path.join(CLOUD_URL,
@@ -53,7 +57,8 @@ def post_multiple_messages(number: int) -> list[dict[str, Any]]:
     for n in range(0, number):
         response = requests.post(
             os.path.join(CLOUD_URL, MESSAGE_PREFIX),
-            json={"name": f"msg{n}", "text": f"Test text {n}"})
+            json={"name": f"msg{n}", "subject": f"subject{n}",
+                  "text": f"Test text {n}"})
         assert response.status_code == 201
         data.append(response.json())
         time.sleep(1)
