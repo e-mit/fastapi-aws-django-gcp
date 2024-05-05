@@ -1,0 +1,16 @@
+{% load static %}
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <title>Message details</title>
+    <link rel="stylesheet" href="{% static 'app/style.css' %}">
+  </head>
+  <body>
+    <ul>
+        <li>Subject: {{ message.subject }}</li>
+        <li>By {{ message.name }} at {{ message.timestamp }}</li>
+        <li>{{ message.text }}</li>
+    </ul>
+  </body>
+</html>
