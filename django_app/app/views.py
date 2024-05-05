@@ -19,7 +19,8 @@ def index(request):
     data = requests.get(os.path.join(URL, "message"))
     message_list = [DisplayMessage.create(**x) for x in data.json()]
     context = {"message_list": message_list,
-               "PostMessageForm": PostMessageForm()}
+               "PostMessageForm": PostMessageForm(),
+               "swagger_url": os.path.join(URL, "docs")}
     if request.method == "POST":
         message = PostMessageForm(request.POST)
         if message.is_valid():
