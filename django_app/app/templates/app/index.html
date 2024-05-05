@@ -13,6 +13,7 @@
         <button type="submit">Submit</button>
         <input type="reset" value="Clear">
     </form>
+    <button onClick="window.location.href=window.location.href">Check for new messages</button>
     {% for message in message_list %}
         <p><a href="{% url 'app:message_detail' message.id %}">{{ message.subject }}</a>
         <div>By {{ message.name }} at {{ message.timestamp }}</div>
