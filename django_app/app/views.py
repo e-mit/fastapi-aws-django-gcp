@@ -1,6 +1,5 @@
 import os
 
-from django.utils import timezone
 from django.shortcuts import render
 import requests
 
@@ -8,10 +7,7 @@ from .models import DisplayMessage
 from .forms import PostMessageForm
 
 
-test_message = DisplayMessage(name="bob", subject="hello",
-                              text="Body text", id="12345",
-                              timestamp=timezone.now().time())
-
+SITE_NAME = "FastAPI-AWS-Django-GCP"
 URL = "https://peil328b55.execute-api.eu-west-2.amazonaws.com"
 
 
@@ -20,7 +16,8 @@ def index(request):
     message_list = [DisplayMessage.create(**x) for x in data.json()]
     context = {"message_list": message_list,
                "PostMessageForm": PostMessageForm(),
-               "swagger_url": os.path.join(URL, "docs")}
+               "swagger_url": os.path.join(URL, "docs"),
+               "site_name": SITE_NAME}
     if request.method == "POST":
         message = PostMessageForm(request.POST)
         if message.is_valid():

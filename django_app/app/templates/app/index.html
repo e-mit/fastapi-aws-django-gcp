@@ -2,20 +2,22 @@
 <!doctype html>
 <html lang="en-GB">
   <head>
-    <meta charset="utf-8" />
-    <title>FastAPI-AWS-Django-GCP</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+    <title>{{ site_name }}</title>
     <link rel="stylesheet" href="{% static 'app/style.css' %}">
   </head>
   <body>
-    <h1>FastAPI-AWS-Django-GCP</h1>
+    <h1>{{ site_name }}</h1>
     <p>A demo project comprising:
         <ul>
             <li>A FastAPI app hosted on AWS, using API Gateway, Lambda and DynamoDB.</li>
             <li>A Django app hosted on GCP, using Cloud Run and Redis.</li>
         </ul>
+        <h5><a href="{{ swagger_url }}">FastAPI Swagger UI</a></h5>
+        <h5><a href="https://github.com/e-mit/{{ site_name }}">View the code on GitHub</a></h5>
     </p>
-    <h2><a href="{{ swagger_url }}">FastAPI Swagger UI</a></h2>
-    <h2><a href="https://github.com/e-mit/FastAPI-AWS-Django-GCP">View the code on GitHub</a></h2>
     <form action="" method="post">
         {% csrf_token %}
         <p>Post a message</p>
@@ -29,5 +31,10 @@
         <div>By {{ message.name }} at {{ message.timestamp }}</div>
         </p>
     {% endfor %}
+
+    <footer>
+        <a href="https://github.com/e-mit/{{ site_name }}">View the source code on GitHub</a>
+        <p>&copy; 2024</p>
+    </footer>
   </body>
 </html>
