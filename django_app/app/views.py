@@ -23,7 +23,9 @@ def index(request):
     if request.method == "POST":
         message = PostMessageForm(request.POST)
         if message.is_valid():
-            print(message.cleaned_data)
+            x = requests.post(os.path.join(URL, "message"),
+                              json=message.cleaned_data)
+            print(x.status_code)
         else:
             context["errors"] = "Error: please check the form and retry."
     return render(request, "app/index.html", context)
