@@ -9,10 +9,11 @@ from .forms import PostMessageForm
 
 SITE_NAME = "FastAPI-AWS-Django-GCP"
 URL = "https://peil328b55.execute-api.eu-west-2.amazonaws.com"
+LIMIT = 20
 
 
 def index(request):
-    data = requests.get(os.path.join(URL, "message"))
+    data = requests.get(os.path.join(URL, f"message?limit={LIMIT}"))
     message_list = [DisplayMessage.create(**x) for x in data.json()]
     context = {"message_list": message_list,
                "PostMessageForm": PostMessageForm(),
@@ -33,4 +34,5 @@ def message_detail(request, message_id: str):
     data = requests.get(os.path.join(URL, "message", message_id))
     message = DisplayMessage.create(**data.json())
     return render(request, "app/message_detail.html",
-                  {"message": message})
+                  {"message": message,
+                   "site_name": SITE_NAME})
