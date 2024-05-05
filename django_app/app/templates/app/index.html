@@ -1,0 +1,22 @@
+{% load static %}
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <title>FastAPI-AWS-Django-GCP</title>
+    <link rel="stylesheet" href="{% static 'app/style.css' %}">
+  </head>
+  <body>
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ PostMessageForm.as_p }}
+        <button type="submit">Submit</button>
+        <input type="reset" value="Clear">
+    </form>
+    {% for message in message_list %}
+        <p><a href="{% url 'app:message_detail' message.id %}">{{ message.subject }}</a>
+        <div>By {{ message.name }} at {{ message.timestamp }}</div>
+        </p>
+    {% endfor %}
+  </body>
+</html>
