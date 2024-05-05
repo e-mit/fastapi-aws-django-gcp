@@ -25,10 +25,11 @@
         <button type="submit">Submit</button>
         <input type="reset" value="Clear">
     </form>
+    <h4>The most recent messages, newest first</h4>
     <button onClick="window.location.href=window.location.href">Check for new messages</button>
     {% for message in message_list %}
         <p><a href="{% url 'app:message_detail' message.id %}">{{ message.subject }}</a>
-        <div>By {{ message.name }} at {{ message.timestamp }}</div>
+        <div>By {{ message.name }} at {{ message.timestamp | time:"H:i:s" }} on {{ message.timestamp | date:"Y-m-d" }}</div>
         </p>
     {% endfor %}
 
