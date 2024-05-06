@@ -27,7 +27,10 @@ class DisplayMessage(Model):
 
     @classmethod
     def create(cls, **kwargs):
-        display_message = cls(**kwargs)
-        display_message.timestamp = datetime.fromtimestamp(
-            display_message.timestamp_ms/1000.0, tz=timezone.utc)
-        return display_message
+        """Create and return instance object, saving in database if needed."""
+        try:
+            return cls.objects.get(id=kwargs['id'])
+        except cls.DoesNotExist:
+            timestamp = datetime.fromtimestamp(
+                kwargs['timestamp_ms']/1000.0, tz=timezone.utc)
+            return cls.objects.update_or_create(timestamp=timestamp, **kwargs)
