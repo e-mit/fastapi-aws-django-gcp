@@ -9,13 +9,26 @@
     <link rel="stylesheet" href="{% static 'app/style.css' %}">
   </head>
   <body>
-    <ul>
-        <li>Subject: {{ message.subject }}</li>
-        <li>By {{ message.name }} at {{ message.timestamp | time:"H:i:s" }} on {{ message.timestamp | date:"Y-m-d" }}</li>
-        <li>{{ message.text }}</li>
-    </ul>
+    <h1>Message details</h1>
+    <table>
+        <tr>
+            <th>Subject</th>
+            <td>{{ message.subject }}</td>
+        </tr>
+        <tr>
+            <th>Author</th>
+            <td>{{ message.name }}</td>
+        </tr>
+        <tr>
+            <th>Time and date</th>
+            <td>{{ message.timestamp | time:"H:i:s" }} on {{ message.timestamp | date:"Y-m-d" }}</td>
+        </tr>
+        <tr>
+            <td colspan="2">{{ message.text }}</td>
+        </tr>
+    </table>
 
-    <a href="/">Home</a>
+    <button onclick="location.href='/';">Home</button>
 
     <footer>
         <a href="https://github.com/e-mit/{{ site_name }}">View the source code on GitHub</a>
