@@ -39,6 +39,7 @@ else:
 
 
 class InputMessage(BaseModel):
+    """Message as input by the client."""
     name: Annotated[str, StringConstraints(
         max_length=MAX_NAME_LENGTH, min_length=1)]
     subject: Annotated[str, StringConstraints(
@@ -48,17 +49,20 @@ class InputMessage(BaseModel):
 
 
 class StoredMessage(InputMessage):
+    """Message for storing in database and returning to client."""
     id: str
     timestamp_ms: int
 
     @classmethod
     def create(cls, message: InputMessage) -> Self:
+        """Create a StoredMessage instance from an input InputMessage."""
         msg = cls(name=message.name, subject=message.subject,
                   text=message.text, id=str(uuid.uuid4().int),
                   timestamp_ms=int(datetime.now().timestamp()*1000))
         return msg
 
     def post(self):
+        """Store the message in the database."""
         dynamo_table.put_item(
             Item={"pk": PK_VALUE, "id": self.id,
                   "timestamp_ms": self.timestamp_ms,
