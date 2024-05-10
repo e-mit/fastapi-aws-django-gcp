@@ -1,12 +1,15 @@
 {% load static %}
+{% load tz %}
+{% get_current_timezone as TIME_ZONE %}
 <!doctype html>
 <html lang="en-GB">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
-    <title>{{ site_name }}</title>
     <link rel="stylesheet" href="{% static 'app/style.css' %}">
+    <script src="{% static 'app/scripts.js' %}"></script>
+    <title>{{ site_name }}</title>
   </head>
   <body>
     <h1>{{ site_name }}</h1>
@@ -25,12 +28,14 @@
         <button type="submit">Submit</button>
         <input type="reset" value="Clear">
     </form>
-    <h4>Recent messages</h4>
+    <h4>Recent messages (times are {{ TIME_ZONE }} timezone)</h4>
     <button onClick="window.location.reload()">Check for new messages</button>
     {% for message in message_list %}
-        <p><a href="{% url 'app:message_detail' message.id %}">{{ message.subject }}</a>
+        <div id="{{ message.id }}"><a href="{% url 'app:message_detail' message.id %}">{{ message.subject }}</a>
         <div>By {{ message.name }} at {{ message.timestamp | time:"H:i:s" }} on {{ message.timestamp | date:"Y-m-d" }}</div>
-        </p>
+        <button type="button" onclick="deleteMessage('{{ message.id }}')">Delete</button>
+        <div class="error"></div>
+        </div>
     {% endfor %}
 
     <footer>

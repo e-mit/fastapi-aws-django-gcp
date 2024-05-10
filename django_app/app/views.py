@@ -1,7 +1,7 @@
 import os
 
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.http import Http404
 from django.urls import reverse
 import requests
@@ -50,3 +50,4 @@ def message_detail(request, message_id: str):
     elif request.method == "DELETE":
         response = requests.delete(os.path.join(URL, "message", message_id))
         DisplayMessage.objects.filter(id=message_id).delete()
+        return HttpResponse()
