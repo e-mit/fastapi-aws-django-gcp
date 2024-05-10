@@ -1,6 +1,7 @@
 """Tests for message.py"""
 from datetime import datetime
 import time
+from pathlib import Path
 
 from fastapi.testclient import TestClient
 from fastapi import HTTPException
@@ -37,6 +38,15 @@ def test_post_message():
     for k in data:
         assert msg[k] == data[k]
     assert timestamp_is_recent(msg['timestamp_ms'])
+
+
+def test_post_location_header():
+    data = {"name": "Alice", "subject": "hello", "text": "hi"}
+    response = client.post("/", json=data)
+    assert response.status_code == 201
+    msg = response.json()
+    new_url = response.headers['location']
+    assert Path(new_url).name == msg['id']
 
 
 def test_get_nonexistent_message_by_id():
