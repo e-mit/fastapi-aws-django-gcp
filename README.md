@@ -21,4 +21,4 @@ These use uvicorn and the official local test dynamoDB Docker container to run e
 
 ## Cloud tests
 
-After deploying to AWS, run ```python -m pytest cloud_tests```
+After deploying to AWS, do ```./run_cloud_tests.sh```
