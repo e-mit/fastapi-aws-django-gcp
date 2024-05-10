@@ -1,18 +1,25 @@
+"""Create and configure the FastAPI app."""
+
 import pathlib
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
+from pydantic import BaseModel
 
 from .routers import message
 
-VERSION = "0.1.0"
-MESSAGE_PREFIX = "message"
+MESSAGE_URL_PREFIX = "message"
+
+
+class APIVersion(BaseModel):
+    api_version: str = "0.1.0"
+
 
 app = FastAPI(
     title="FastAPI demo",
-    description="A simple API for message CRUD with a dynamoDB back end.",
-    version=f"v{VERSION}",
+    description="A simple API for message CRUD with a DynamoDB back end.",
+    version=f"v{APIVersion().api_version}",
     contact={
         "name": "e-mit.github.io",
         "url": "https://e-mit.github.io/"
@@ -30,13 +37,13 @@ app.mount("/static", StaticFiles(
 
 @app.get("/", include_in_schema=False)
 async def root() -> RedirectResponse:
-    return RedirectResponse(url="/version")
+    return RedirectResponse(url="/docs")
 
 
 @app.get("/version", tags=["Version"])
-async def version() -> dict[str, str]:
+async def version() -> APIVersion:
     """The API version."""
-    return {"api_version": VERSION}
+    return APIVersion()
 
 
 @app.get("/favicon.ico", include_in_schema=False)
@@ -46,5 +53,5 @@ async def get_favicon() -> RedirectResponse:
 
 app.include_router(
     message.router,
-    prefix=f"/{MESSAGE_PREFIX}"
+    prefix=f"/{MESSAGE_URL_PREFIX}"
 )
