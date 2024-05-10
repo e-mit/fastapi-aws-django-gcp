@@ -7,3 +7,4 @@ package
 out.yml
 function.zip
 db.sqlite3
+message_tests.py
