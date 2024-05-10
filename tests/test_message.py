@@ -3,6 +3,7 @@ from datetime import datetime
 import time
 
 from fastapi.testclient import TestClient
+from fastapi import HTTPException
 import pytest
 
 from function.app.routers import message
@@ -38,11 +39,15 @@ def test_post_message():
     assert timestamp_is_recent(msg['timestamp_ms'])
 
 
+def test_get_nonexistent_message_by_id():
+    TEST_ID = "12345"
+    with pytest.raises(HTTPException) as excinfo:
+        client.get(f"/{TEST_ID}")
+    assert excinfo.value.status_code == 404
+
+
 def test_get_message_by_id():
     TEST_ID = "12345"
-    response = client.get(f"/{TEST_ID}")
-    assert response.status_code == 200
-    assert response.json() is None
     msg = message.StoredMessage.create(
         message.InputMessage(name="my name", subject="the subject",
                              text="Test text"))
@@ -98,10 +103,12 @@ def test_delete_message():
         message.InputMessage(name="me", subject="subject text",
                              text="Hello text"))
     msg.post()
-    assert db_contains_id(msg.id)
+    assert client.get(f"/{msg.id}").status_code == 200
     response = client.delete(f"/{msg.id}")
     assert response.status_code == 204
-    assert not db_contains_id(msg.id)
+    with pytest.raises(HTTPException) as excinfo:
+        client.get(f"/{msg.id}")
+    assert excinfo.value.status_code == 404
 
 
 def delete_all_loop():

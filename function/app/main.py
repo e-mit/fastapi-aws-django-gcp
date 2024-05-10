@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from .routers import message
 
 MESSAGE_URL_PREFIX = "message"
+TITLE = "FastAPI demo"
 
 
 class APIVersion(BaseModel):
@@ -17,7 +18,7 @@ class APIVersion(BaseModel):
 
 
 app = FastAPI(
-    title="FastAPI demo",
+    title=TITLE,
     description="A simple API for message CRUD with a DynamoDB back end.",
     version=f"v{APIVersion().api_version}",
     contact={

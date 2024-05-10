@@ -6,13 +6,13 @@ from function.app import main
 client = TestClient(main.app)
 
 
-def test_get_hello():
+def test_get_root():
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json() == {"api_version": main.VERSION}
+    assert main.TITLE in response.text
 
 
 def test_get_version():
     response = client.get("/version")
     assert response.status_code == 200
-    assert response.json() == {"api_version": main.VERSION}
+    assert response.json() == {"api_version": main.APIVersion().api_version}
