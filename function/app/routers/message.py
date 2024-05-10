@@ -1,4 +1,5 @@
 """Read, write and delete text messages."""
+
 from datetime import datetime
 from typing import Annotated
 from typing_extensions import Self
@@ -8,6 +9,7 @@ import os
 import time
 
 from fastapi import APIRouter, status, Query, Path
+from fastapi import HTTPException
 from pydantic import BaseModel, StringConstraints
 import boto3
 from boto3.dynamodb.conditions import Key
@@ -69,8 +71,11 @@ def read_message_by_id(
         id: Annotated[str, Path(max_length=MAX_ID_LENGTH)]
                       ) -> StoredMessage | None:
     """Get message using its id."""
-    data = dynamo_table.get_item(Key={"id": id})
-    return data.get("Item", None)
+    message = dynamo_table.get_item(Key={"id": id}).get("Item", None)
+    if message is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Message ID not found")
+    return message
 
 
 @router.get("/", status_code=status.HTTP_200_OK)
