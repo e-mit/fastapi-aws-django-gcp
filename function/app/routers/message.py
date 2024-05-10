@@ -9,7 +9,7 @@ import os
 import time
 
 from fastapi import APIRouter, status, Query, Path
-from fastapi import HTTPException
+from fastapi import HTTPException, Response, Request
 from pydantic import BaseModel, StringConstraints
 import boto3
 from boto3.dynamodb.conditions import Key
@@ -118,10 +118,12 @@ def read_messages(
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-def write_message(message: InputMessage) -> StoredMessage:
+def write_message(response: Response, request: Request,
+                  message: InputMessage) -> StoredMessage:
     """Post a message."""
     msg = StoredMessage.create(message)
     msg.post()
+    response.headers["Location"] = os.path.join(str(request.url), msg.id)
     return msg
 
 
