@@ -23,9 +23,14 @@
     <form action="" method="post">
         {% csrf_token %}
         <h4>Post a message</h4>
-        {{ PostMessageForm.as_p }}
-        <button type="submit">Submit</button>
-        <input type="reset" value="Clear">
+        {% for field in PostMessageForm %}
+            {{ field.label_tag }} {{ field }}
+            {{ field.errors }}
+        {% endfor %}
+        <div id="button-box">
+            <button type="submit">Submit</button>
+            <input type="reset" value="Clear">
+        </div>
     </form>
     <h4>Recent messages ({{ TIME_ZONE }} timezone)</h4>
     <button onClick="window.location.reload()">Check for new messages</button>
@@ -33,7 +38,7 @@
         <div class="message-box" id="{{ message.id }}"><a href="{% url 'app:message_detail' message.id %}">{{ message.subject }}</a>
         <div class="details-box">
             <span>By {{ message.name }} at {{ message.timestamp | time:"H:i:s" }} on {{ message.timestamp | date:"Y-m-d" }}</span>
-            &nbsp;
+            &nbsp;&nbsp;
             <span class="delete-box" onclick="deleteMessage('{{ message.id }}')">{% include 'app/icon-remove.svg' %}</span>
         </div>
         <div class="error"></div>
