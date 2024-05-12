@@ -11,22 +11,22 @@ from .forms import PostMessageForm
 
 
 SITE_NAME = "FastAPI-AWS-Django-GCP"
-URL = "https://peil328b55.execute-api.eu-west-2.amazonaws.com"
+API_URL = os.environ['API_URL']
 MESSAGE_DISPLAY_LIMIT = 20
 
 
 def index(request):
     data = requests.get(
-        os.path.join(URL, f"message?limit={MESSAGE_DISPLAY_LIMIT}"))
+        os.path.join(API_URL, f"message?limit={MESSAGE_DISPLAY_LIMIT}"))
     message_list = [DisplayMessage.create(**x) for x in data.json()]
     context = {"message_list": message_list,
                "PostMessageForm": PostMessageForm(),
-               "swagger_url": os.path.join(URL, "docs"),
+               "swagger_url": os.path.join(API_URL, "docs"),
                "site_name": SITE_NAME}
     if request.method == "POST":
         message = PostMessageForm(request.POST)
         if message.is_valid():
-            data = requests.post(os.path.join(URL, "message"),
+            data = requests.post(os.path.join(API_URL, "message"),
                                  json=message.cleaned_data)
             message = DisplayMessage.create(**data.json())
             return HttpResponseRedirect(reverse("app:message_detail",
@@ -41,13 +41,15 @@ def message_detail(request, message_id: str):
         try:
             message = DisplayMessage.objects.get(id=message_id)
         except DisplayMessage.DoesNotExist:
-            response = requests.get(os.path.join(URL, "message", message_id))
+            response = requests.get(
+                os.path.join(API_URL, "message", message_id))
             if response.status_code == int(requests.codes.not_found):
                 raise Http404("Message not found")
             message = DisplayMessage.create(**response.json())
         return render(request, "app/message_detail.html",
                       {"message": message, "site_name": SITE_NAME})
     elif request.method == "DELETE":
-        response = requests.delete(os.path.join(URL, "message", message_id))
+        response = requests.delete(
+            os.path.join(API_URL, "message", message_id))
         DisplayMessage.objects.filter(id=message_id).delete()
         return HttpResponse()
