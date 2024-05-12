@@ -13,22 +13,21 @@
   </head>
   <body>
     <h1>{{ site_name }}</h1>
-    <p>A demo project comprising:
-        <ul>
-            <li>A FastAPI app hosted on AWS, using API Gateway, Lambda and DynamoDB.</li>
-            <li>A Django app hosted on GCP, using Cloud Run and Redis.</li>
-        </ul>
-        <h5><a href="{{ swagger_url }}">FastAPI Swagger UI</a></h5>
-        <h5><a href="https://github.com/e-mit/{{ site_name }}">View the code on GitHub</a></h5>
-    </p>
+    <p>A demo project comprising:</p>
+    <ul>
+        <li>A FastAPI app hosted on AWS, using API Gateway, Lambda and DynamoDB.</li>
+        <li>A Django app hosted on GCP, using Cloud Run and Redis.</li>
+    </ul>
+    <h5><a href="{{ swagger_url }}">FastAPI Swagger UI</a></h5>
+    <h5><a href="https://github.com/e-mit/{{ site_name }}">View the code on GitHub</a></h5>
     <form action="" method="post">
         {% csrf_token %}
-        <p>Post a message</p>
+        <h4>Post a message</h4>
         {{ PostMessageForm.as_p }}
         <button type="submit">Submit</button>
         <input type="reset" value="Clear">
     </form>
-    <h4>Recent messages (times are {{ TIME_ZONE }} timezone)</h4>
+    <h4>Recent messages ({{ TIME_ZONE }} timezone)</h4>
     <button onClick="window.location.reload()">Check for new messages</button>
     {% for message in message_list %}
         <div class="message-box" id="{{ message.id }}"><a href="{% url 'app:message_detail' message.id %}">{{ message.subject }}</a>

@@ -32,3 +32,20 @@ table {
 .message-box + footer {
     margin: 0 !important;
 }
+
+h5 + h5 {
+    margin-top: 0;
+}
+
+ul {
+    margin: 0;
+}
+
+p {
+    margin: 1rem 0;
+}
+
+form {
+    border-top: 1px solid gray;
+    border-bottom: 1px solid gray;
+}
