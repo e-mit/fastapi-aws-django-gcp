@@ -33,4 +33,5 @@ class DisplayMessage(Model):
         except cls.DoesNotExist:
             timestamp = datetime.fromtimestamp(
                 kwargs['timestamp_ms']/1000.0, tz=timezone.utc)
-            return cls.objects.update_or_create(timestamp=timestamp, **kwargs)[0]
+            return cls.objects.update_or_create(
+                timestamp=timestamp, **kwargs)[0]
