@@ -1,14 +1,10 @@
-{% load static %}
-<!doctype html>
-<html lang="en-GB">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
-    <title>Message details</title>
-    <link rel="stylesheet" href="{% static 'app/style.css' %}">
-  </head>
-  <body>
+{% extends "app/base.html" %}
+
+{% block head %}
+<title>Message details</title>
+{% endblock %}
+
+{% block body %}
     <h1>Message details</h1>
     <table>
         <tr>
@@ -30,9 +26,4 @@
 
     <button onclick="location.href='/';">Home</button>
 
-    <footer>
-        <a href="https://github.com/e-mit/{{ site_name }}">View the source code on GitHub</a>
-        <p>&copy; 2024</p>
-    </footer>
-  </body>
-</html>
+{% endblock %}

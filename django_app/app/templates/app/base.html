@@ -1,0 +1,22 @@
+{% load static %}
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+    <link rel="stylesheet" href="{% static 'app/style.css' %}">
+    {% block head %}
+    {% endblock %}
+  </head>
+  <body>
+
+    {% block body %}
+    {% endblock %}
+
+    <footer>
+        <a href="https://github.com/e-mit/{{ site_name }}">View the source code on GitHub</a>
+        <p>&copy; 2024</p>
+    </footer>
+  </body>
+</html>
