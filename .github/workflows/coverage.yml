@@ -10,6 +10,11 @@ jobs:
       uses: actions/checkout@v4
     - name: Prepare test environment
       uses: ./.github/actions/prepare-test-environment
+    - uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-2
     - name: Run dynamoDB test container
       run: |
         docker run --rm --name dynamodb_test_local -d -p 8000:8000 amazon/dynamodb-local
