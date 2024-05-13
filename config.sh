@@ -3,7 +3,7 @@
 
 #########################################################
 
-# Stack name and name prefix for the resources to be created
+# Stack name and name prefix for the AWS resources to be created
 export NAME_PREFIX=testapi
 
 # Lambda CloudWatch log level
