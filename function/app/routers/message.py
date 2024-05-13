@@ -2,7 +2,6 @@
 
 from datetime import datetime
 from typing import Annotated
-from typing_extensions import Self
 import uuid
 import logging
 import os
@@ -13,6 +12,7 @@ from fastapi import HTTPException, Response, Request
 from pydantic import BaseModel, StringConstraints
 import boto3
 from boto3.dynamodb.conditions import Key
+from typing_extensions import Self
 
 PK_VALUE = 1  # Arbitrary universal partition key value for GSI
 MAX_ID_LENGTH = 39  # This is a 128-bit number
@@ -23,6 +23,7 @@ MAX_NAME_LENGTH = 20
 MAX_SUBJECT_LENGTH = 40
 MAX_MESSAGE_LENGTH = 200
 FUTURE_SECONDS_OFFSET = 500
+DELETE_BATCH_LIMIT = 25
 
 DB_TABLE_NAME = os.environ['DB_TABLE_NAME']
 logger = logging.getLogger()
@@ -72,12 +73,12 @@ class StoredMessage(InputMessage):
                   "text": self.text})
 
 
-@router.get("/{id}", status_code=status.HTTP_200_OK)
+@router.get("/{message_id}", status_code=status.HTTP_200_OK)
 def read_message_by_id(
-        id: Annotated[str, Path(max_length=MAX_ID_LENGTH)]
+        message_id: Annotated[str, Path(max_length=MAX_ID_LENGTH)]
                       ) -> StoredMessage | None:
     """Get message using its id."""
-    message = dynamo_table.get_item(Key={"id": id}).get("Item", None)
+    message = dynamo_table.get_item(Key={"id": message_id}).get("Item", None)
     if message is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="Message ID not found")
@@ -133,16 +134,15 @@ def write_message(response: Response, request: Request,
     return msg
 
 
-@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_message_by_id(id: str) -> None:
+@router.delete("/{message_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_message_by_id(message_id: str) -> None:
     """Delete a message using its ID."""
-    dynamo_table.delete_item(Key={"id": id})
+    dynamo_table.delete_item(Key={"id": message_id})
 
 
 @router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
 def delete_all() -> None:
     """Delete all messages."""
-    DELETE_BATCH_LIMIT = 25
     items = dynamo_table.scan(Limit=DELETE_BATCH_LIMIT).get("Items", [])
     while len(items) > 0:
         with dynamo_table.batch_writer() as batch:
