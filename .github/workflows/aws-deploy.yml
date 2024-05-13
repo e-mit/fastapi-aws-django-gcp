@@ -1,6 +1,11 @@
 name: aws-deploy
 
-on: [push, workflow_dispatch]
+on:
+    workflow_run:
+      workflows:
+        - tests
+      types:
+        - completed
 env:
     CLOUD_URL: ${{ vars.CLOUD_URL }}
     LOG_LEVEL: ${{ vars.LOG_LEVEL }}
