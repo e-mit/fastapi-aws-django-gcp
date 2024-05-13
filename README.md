@@ -10,22 +10,20 @@
 ![pylint](https://github.com/e-mit/fastapi-aws-django-gcp/actions/workflows/pylint.yml/badge.svg)
 ![pyright](https://github.com/e-mit/fastapi-aws-django-gcp/actions/workflows/pyright.yml/badge.svg)
 ![bandit](https://github.com/e-mit/fastapi-aws-django-gcp/actions/workflows/bandit.yml/badge.svg)
-![docker build](https://github.com/e-mit/fastapi-aws-django-gcp/actions/workflows/docker-release-build.yml/badge.svg)
-![docker test](https://github.com/e-mit/fastapi-aws-django-gcp/actions/workflows/release-test.yml/badge.svg)
-![docker-hub-push](https://github.com/e-mit/fastapi-aws-django-gcp/actions/workflows/docker-hub-push.yml/badge.svg)
-![google-cloud-deploy](https://github.com/e-mit/fastapi-aws-django-gcp/actions/workflows/google-cloud-deploy.yml/badge.svg)
+![aws-deploy](https://github.com/e-mit/fastapi-aws-django-gcp/actions/workflows/aws-deploy.yml/badge.svg)
 
 
 A demo project for posting and displaying text messages online, comprising:
 - A FastAPI app hosted on AWS, using API Gateway, Lambda and DynamoDB.
 - A Django app hosted on GCP, using Cloud Run, SQLite, Gunicorn and Docker.
 
-[Try the example front-end on Google Cloud Run.](https://TBC)
-(Note: this is a free GCR instance which scales to zero, causing a brief startup delay).
-
 [View the FastAPI Swagger UI on AWS.](https://peil328b55.execute-api.eu-west-2.amazonaws.com/docs)
 
-[Docker Hub image repository.](https://hub.docker.com/r/emit5/FastAPI-AWS-Django-GCP)
+
+## TO DO
+- Django release configuration
+- Docker containerisation
+- Deployment on GCP Cloud Run
 
 
 ## Continuous automated test, build and deploy
@@ -43,7 +41,7 @@ If all action workflows pass, the new Docker image (Django) is automatically pus
     - Update the lambda code
     - Update the lambda layer, which contains the Python dependency packages
     - Change the log level
-4. Build, check and push the Docker image with ```build_and_push.sh```
+4. Build, check and push the Docker image
 
 
 ## Local tests
