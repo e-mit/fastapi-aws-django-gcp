@@ -8,12 +8,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.10"
-    - name: Install dependencies
-      run: pip install pytest
+    - name: Prepare test environment
+      uses: ./.github/actions/prepare-test-environment
     - name: Run dynamoDB test container
       run: |
         export DB_TABLE_NAME=testTable

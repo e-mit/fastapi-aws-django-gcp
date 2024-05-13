@@ -20,7 +20,7 @@ A demo project for posting and displaying text messages online, comprising:
 [View the FastAPI Swagger UI on AWS.](https://peil328b55.execute-api.eu-west-2.amazonaws.com/docs)
 
 
-## TO DO
+## To Do
 - Django release configuration
 - Docker containerisation
 - Deployment on GCP Cloud Run
