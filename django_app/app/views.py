@@ -13,11 +13,13 @@ from .forms import PostMessageForm
 SITE_NAME = "FastAPI-AWS-Django-GCP"
 API_URL = os.environ['API_URL']
 MESSAGE_DISPLAY_LIMIT = 20
+REQUEST_TIMEOUT_S = 5
 
 
 def index(request):
     data = requests.get(
-        os.path.join(API_URL, f"message?limit={MESSAGE_DISPLAY_LIMIT}"))
+        os.path.join(API_URL, f"message?limit={MESSAGE_DISPLAY_LIMIT}"),
+        timeout=REQUEST_TIMEOUT_S)
     message_list = [DisplayMessage.create(**x) for x in data.json()]
     context = {"message_list": message_list,
                "PostMessageForm": PostMessageForm(),
@@ -27,7 +29,8 @@ def index(request):
         message = PostMessageForm(request.POST)
         if message.is_valid():
             data = requests.post(os.path.join(API_URL, "message"),
-                                 json=message.cleaned_data)
+                                 json=message.cleaned_data,
+                                 timeout=REQUEST_TIMEOUT_S)
             message = DisplayMessage.create(**data.json())
             return HttpResponseRedirect(reverse("app:message_detail",
                                                 args=(message.id,)))
@@ -42,7 +45,8 @@ def message_detail(request, message_id: str):
             message = DisplayMessage.objects.get(id=message_id)
         except DisplayMessage.DoesNotExist:
             response = requests.get(
-                os.path.join(API_URL, "message", message_id))
+                os.path.join(API_URL, "message", message_id),
+                timeout=REQUEST_TIMEOUT_S)
             if response.status_code == int(requests.codes.not_found):
                 raise Http404("Message not found")
             message = DisplayMessage.create(**response.json())
@@ -50,6 +54,7 @@ def message_detail(request, message_id: str):
                       {"message": message, "site_name": SITE_NAME})
     elif request.method == "DELETE":
         response = requests.delete(
-            os.path.join(API_URL, "message", message_id))
+            os.path.join(API_URL, "message", message_id),
+            timeout=REQUEST_TIMEOUT_S)
         DisplayMessage.objects.filter(id=message_id).delete()
         return HttpResponse()

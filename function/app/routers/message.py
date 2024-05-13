@@ -40,6 +40,7 @@ else:
 
 class InputMessage(BaseModel):
     """Message as input by the client."""
+
     name: Annotated[str, StringConstraints(
         max_length=MAX_NAME_LENGTH, min_length=1)]
     subject: Annotated[str, StringConstraints(
@@ -50,6 +51,7 @@ class InputMessage(BaseModel):
 
 class StoredMessage(InputMessage):
     """Message for storing in database and returning to client."""
+
     id: str
     timestamp_ms: int
 
