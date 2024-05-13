@@ -1,0 +1,25 @@
+name: pyright
+
+on: [push, workflow_dispatch]
+
+jobs:
+  pyright:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install dependencies
+        run: |
+          pip install pyright
+      - name: pyright
+        run: python -m pyright function
+      - name: Save result
+        if: always()
+        uses: ./.github/actions/save-workflow-result
+        with:
+          result: ${{ job.status }}
+

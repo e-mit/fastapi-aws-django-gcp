@@ -1,0 +1,31 @@
+name: aws-deploy
+
+on: [push, workflow_dispatch]
+env:
+    CLOUD_URL: ${{ vars.CLOUD_URL }}
+    LOG_LEVEL: ${{ vars.LOG_LEVEL }}
+    NAME_PREFIX: ${{ vars.NAME_PREFIX }}
+
+jobs:
+  aws-deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Wait for all workflows to pass
+      run: |
+        export GITHUB_SHA=${{ github.sha }}
+        export REPO_PATH=${{ github.repository }}
+        export GH_TOKEN=${{ secrets.GH_PAT }}
+        pip install -r requirements.txt
+        pip install -r test_requirements.txt
+        python .github/wait_for_workflow_artifacts.py aws-deploy
+    - uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-2
+    - name: deploy to aws and run cloud tests
+      run: |
+        ./setup.sh
