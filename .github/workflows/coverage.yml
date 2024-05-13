@@ -22,6 +22,8 @@ jobs:
         ./create_test_table.sh
     - name: Coverage percentage check
       run: |
+        export DB_TABLE_NAME=testTable
+        export TEST=true
         target_coverage_pc=90
         coverage_pc=$(python -m pytest --cov=function/app tests -p no:cacheprovider | awk '$1 == "TOTAL" {print $NF+0}')
         echo Test coverage = $coverage_pc%
