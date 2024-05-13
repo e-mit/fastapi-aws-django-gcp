@@ -10,6 +10,7 @@ env:
     CLOUD_URL: ${{ vars.CLOUD_URL }}
     LOG_LEVEL: ${{ vars.LOG_LEVEL }}
     NAME_PREFIX: ${{ vars.NAME_PREFIX }}
+    LAMBDA_TIMEOUT_SEC: ${{ vars.LAMBDA_TIMEOUT_SEC }}
 
 jobs:
   aws-deploy:
