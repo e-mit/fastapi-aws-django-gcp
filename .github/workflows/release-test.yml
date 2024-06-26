@@ -20,7 +20,7 @@ jobs:
         build-type: 'release'
     - name: Release test
       run: |
-        docker run -p 8080:8080 --name django_app --rm django_app:latest
+        docker run -d -p 8080:8080 --name django_app --rm django_app:latest
         sleep 4
         page=$(curl http://127.0.0.1:8080)
         if ! grep -q "FastAPI-AWS-Django-GCP" <<< "$page"; then echo "Page GET failed." && exit 1; fi
