@@ -4,7 +4,7 @@ export API_URL="https://peil328b55.execute-api.eu-west-2.amazonaws.com"
 export DJANGO_ALLOWED_HOSTS='localhost 127.0.0.1'
 
 # NB: run locally (without docker) using:
-# gunicorn django_app.wsgi:application --bind 0.0.0.0:8080
+# gunicorn django_app.wsgi:application --bind 0.0.0.0:8080 --conf gunicorn_conf.py
 
 ############################################
 

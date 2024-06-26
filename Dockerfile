@@ -15,6 +15,12 @@ COPY django_app/requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY django_app .
+
+# These ENVs will be overwritten later (needed for collectstatic)
+ENV DJANGO_DEBUG=0
+ENV DJANGO_ALLOWED_HOSTS="localhost 127.0.0.1"
+RUN python manage.py collectstatic --noinput
+
 RUN adduser nonroot --disabled-password
 USER nonroot
 
