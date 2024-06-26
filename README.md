@@ -54,3 +54,9 @@ These use uvicorn and the official test dynamoDB Docker container to run entirel
 
 After deploying to AWS, do ```./run_cloud_tests.sh```
 
+
+## Use notes
+
+- Google Cloud Run instances are started in response to user access, so will have an initial startup delay.
+- Cloud Run instances stay idle for up to 15 minutes after starting, before shutting down (but there is no minimum guaranteed idle period). New accesses within this time will be fast.
+- No state is saved between instances, and a new crypographic key is generated on each startup. This means that a CSRF error will occur if the front-end webpage is loaded from one instance and a form is submitted to a second instance.
