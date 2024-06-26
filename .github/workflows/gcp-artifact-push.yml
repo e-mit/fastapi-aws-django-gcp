@@ -1,4 +1,4 @@
-name: docker-hub-push
+name: gcp-artifact-push
 
 on:
   workflow_run:
@@ -19,7 +19,7 @@ jobs:
         export GITHUB_SHA=${{ github.sha }}
         export REPO_PATH=${{ github.repository }}
         export GH_TOKEN=${{ secrets.GH_PAT }}
-        pip install -r requirements_test.txt
+        pip install -r test_requirements.txt
         python .github/wait_for_workflow_artifacts.py google-cloud-deploy docker-hub-push gcp-artifact-push aws-deploy
     - name: Wait for and download docker image artifact
       uses: ./.github/actions/download-docker-artifact

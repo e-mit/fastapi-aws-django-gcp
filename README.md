@@ -12,10 +12,10 @@
 ![bandit](https://github.com/e-mit/fastapi-aws-django-gcp/actions/workflows/bandit.yml/badge.svg)
 ![aws-deploy](https://github.com/e-mit/fastapi-aws-django-gcp/actions/workflows/aws-deploy.yml/badge.svg)
 ![docker-release-build](https://github.com/e-mit/fastapi-aws-django-gcp/actions/workflows/docker-release-build.yml/badge.svg)
-![release-test](https://github.com/e-mit/ fastapi-aws-django-gcp/actions/workflows/release-test.yml/badge.svg)
-![docker-hub-push](https://github.com/e-mit/ fastapi-aws-django-gcp/actions/workflows/docker-hub-push.yml/badge.svg)
-![gcp-artifact-push](https://github.com/e-mit/ fastapi-aws-django-gcp/actions/workflows/gcp-artifact-push.yml/badge.svg)
-![google-cloud-deploy](https://github.com/e-mit/ fastapi-aws-django-gcp/actions/workflows/google-cloud-deploy.yml/badge.svg)
+![release-test](https://github.com/e-mit/fastapi-aws-django-gcp/actions/workflows/release-test.yml/badge.svg)
+![docker-hub-push](https://github.com/e-mit/fastapi-aws-django-gcp/actions/workflows/docker-hub-push.yml/badge.svg)
+![gcp-artifact-push](https://github.com/e-mit/fastapi-aws-django-gcp/actions/workflows/gcp-artifact-push.yml/badge.svg)
+![google-cloud-deploy](https://github.com/e-mit/fastapi-aws-django-gcp/actions/workflows/google-cloud-deploy.yml/badge.svg)
 
 
 A demo project for posting and displaying text messages online, comprising:

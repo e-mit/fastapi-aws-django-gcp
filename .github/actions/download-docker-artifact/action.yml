@@ -19,7 +19,7 @@ runs:
       export GITHUB_SHA=${{ github.sha }}
       export REPO_PATH=${{ github.repository }}
       export GH_TOKEN=${{ inputs.repo-read-token }}
-      pip install -r requirements_test.txt
+      pip install -r test_requirements.txt
       python .github/wait_for_workflow_artifacts.py - ${{ inputs.build-type }}-build-${{ github.sha }}
   - name: Retrieve Docker image
     uses: actions/download-artifact@v4
