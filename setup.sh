@@ -1,7 +1,16 @@
 #!/bin/bash
 
 # Create or update a stack instance according to the parameters supplied in
-# the environment variables. For an example configuration, see config.sh
+# the environment variables.
+
+# Stack name and name prefix for the AWS resources to be created
+export NAME_PREFIX=testapi
+
+# Lambda CloudWatch log level
+export LOG_LEVEL=DEBUG
+
+# Lambda timeout:
+export LAMBDA_TIMEOUT_SEC=10
 
 ####################################################
 
