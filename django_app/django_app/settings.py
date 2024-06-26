@@ -134,3 +134,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATICFILES_DIRS = [
     BASE_DIR / 'project_static'
 ]
+
+# CSRF setup
+
+if not DEBUG:
+    CSRF_TRUSTED_ORIGINS = [f'https://{x}' for x in ALLOWED_HOSTS]
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# These are for https only:
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
