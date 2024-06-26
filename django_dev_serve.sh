@@ -2,8 +2,11 @@
 
 # Run the development server, creating a fresh SQLite database
 
-rm $(dirname "$0")/django_app/db.sqlite3
+export DJANGO_SECRET_KEY=$(openssl rand -base64 32)
+export API_URL="https://peil328b55.execute-api.eu-west-2.amazonaws.com"
 
-python manage.py migrate
+rm -f django_app/db.sqlite3
 
-python manage.py runserver
+python django_app/manage.py migrate
+
+python django_app/manage.py runserver
