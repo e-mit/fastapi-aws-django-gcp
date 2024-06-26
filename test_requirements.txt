@@ -14,3 +14,4 @@ boto3-stubs
 requests
 types-requests
 django-stubs
+uvicorn
