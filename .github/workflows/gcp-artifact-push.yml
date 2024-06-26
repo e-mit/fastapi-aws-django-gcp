@@ -20,7 +20,7 @@ jobs:
         export REPO_PATH=${{ github.repository }}
         export GH_TOKEN=${{ secrets.GH_PAT }}
         pip install -r requirements_test.txt
-        python .github/wait_for_workflow_artifacts.py google-cloud-deploy docker-hub-push aws-deploy
+        python .github/wait_for_workflow_artifacts.py google-cloud-deploy docker-hub-push gcp-artifact-push aws-deploy
     - name: Wait for and download docker image artifact
       uses: ./.github/actions/download-docker-artifact
       with:

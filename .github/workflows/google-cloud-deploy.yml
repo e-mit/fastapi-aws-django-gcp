@@ -3,7 +3,7 @@ name: google-cloud-deploy
 on:
   workflow_run:
     workflows:
-      - docker-release-build
+      - gcp-artifact-push
     types:
       - completed
 
@@ -23,6 +23,6 @@ jobs:
       with:
         project_id: 'fastapi-aws-django-gcp'
         service: 'django-app-service'
-        image: '${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ github.sha }}'
+        image: europe-west1-docker.pkg.dev/fastapi-aws-django-gcp/djangorepo/django_app:latest
         region: europe-west1
         flags: '--cpu-boost --session-affinity'
