@@ -32,5 +32,6 @@ jobs:
         credentials_json: '${{ secrets.GOOGLE_CLOUD_RUN_CREDENTIALS }}'
     - name: Push to GCP artifact registry
       run: |
+        gcloud auth configure-docker europe-west1-docker.pkg.dev
         docker tag django_app:latest europe-west1-docker.pkg.dev/fastapi-aws-django-gcp/djangorepo/django_app:latest
         docker push europe-west1-docker.pkg.dev/fastapi-aws-django-gcp/djangorepo/django_app:latest
