@@ -8,7 +8,7 @@ export DJANGO_ALLOWED_HOSTS='localhost 127.0.0.1'
 
 ############################################
 
-docker build --target release -t django_app:latest .
+docker build --no-cache --target release -t django_app:latest .
 
 docker run -p 8080:8080 --name django_app \
   -e API_URL=$API_URL -e DJANGO_ALLOWED_HOSTS="$DJANGO_ALLOWED_HOSTS" \

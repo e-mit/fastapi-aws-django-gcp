@@ -16,12 +16,22 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY django_app .
 
+ENV DJANGO_DB_DIR=/db
 # These ENVs will be overwritten later (needed for collectstatic)
 ENV DJANGO_DEBUG=0
+ENV API_URL="http://example.com"
 ENV DJANGO_ALLOWED_HOSTS="localhost 127.0.0.1"
 RUN python manage.py collectstatic --noinput
 
-RUN adduser nonroot --disabled-password
+RUN addgroup nonroot
+RUN adduser nonroot --disabled-password --ingroup nonroot
+
+# Create a directory for SQLite database
+RUN mkdir $DJANGO_DB_DIR
+RUN python manage.py migrate
+RUN chown -R nonroot:nonroot $DJANGO_DB_DIR
+RUN chmod +w ${DJANGO_DB_DIR}/db.sqlite3
+
 USER nonroot
 
 FROM base as release
