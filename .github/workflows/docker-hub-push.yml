@@ -1,0 +1,37 @@
+name: docker-hub-push
+
+on:
+  workflow_run:
+    workflows:
+      - docker-release-build
+    types:
+      - completed
+
+jobs:
+  push:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Wait for all workflows to pass
+      run: |
+        export GITHUB_SHA=${{ github.sha }}
+        export REPO_PATH=${{ github.repository }}
+        export GH_TOKEN=${{ secrets.GH_PAT }}
+        pip install -r requirements_test.txt
+        python .github/wait_for_workflow_artifacts.py google-cloud-deploy docker-hub-push aws-deploy
+    - name: Wait for and download docker image artifact
+      uses: ./.github/actions/download-docker-artifact
+      with:
+        repo-read-token: ${{ secrets.GH_PAT }}
+        build-type: 'release'
+    - name: Log in to Docker Hub
+      uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Push to docker hub
+      run: |
+        docker tag django_app:latest ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ github.sha }}
+        docker push ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ github.sha }}

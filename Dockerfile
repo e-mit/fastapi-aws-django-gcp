@@ -40,5 +40,4 @@ CMD ["gunicorn", "django_app.wsgi:application", "--bind", "0.0.0.0:8080", "--con
 
 FROM base as dev
 ENV DJANGO_DEBUG=1
-ENV DJANGO_ALLOWED_HOSTS="localhost 127.0.0.1"
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8080"]

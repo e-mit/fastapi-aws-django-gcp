@@ -1,0 +1,28 @@
+name: google-cloud-deploy
+
+on:
+  workflow_run:
+    workflows:
+      - docker-release-build
+    types:
+      - completed
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Authenticate with Google Cloud
+      uses: 'google-github-actions/auth@v2'
+      with:
+        credentials_json: '${{ secrets.GOOGLE_CLOUD_RUN_CREDENTIALS }}' 
+    - name: Deploy to Google Cloud Run
+      uses: 'google-github-actions/deploy-cloudrun@v2'
+      with:
+        project_id: 'fastapi-aws-django-gcp'
+        service: 'django-app-service'
+        image: '${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ github.sha }}'
+        region: europe-west1
+        flags: '--cpu-boost --session-affinity'

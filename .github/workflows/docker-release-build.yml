@@ -1,0 +1,28 @@
+name: docker-release-build
+
+on: [push]
+
+jobs:
+  release-build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Docker release build
+      run: |
+        docker build --no-cache --target release -t django_app:latest .
+        docker save django_app:latest > release_image.tar
+    - name: Save image
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-build-${{ github.sha }}
+        path: release_image.tar
+        if-no-files-found: error
+        retention-days: 1
+    - name: Pause due to GitHub problem with artifact upload/download
+      run: sleep 30
+    - name: Save result
+      if: always()
+      uses: ./.github/actions/save-workflow-result
+      with:
+        result: ${{ job.status }}

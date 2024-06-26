@@ -11,6 +11,11 @@
 ![pyright](https://github.com/e-mit/fastapi-aws-django-gcp/actions/workflows/pyright.yml/badge.svg)
 ![bandit](https://github.com/e-mit/fastapi-aws-django-gcp/actions/workflows/bandit.yml/badge.svg)
 ![aws-deploy](https://github.com/e-mit/fastapi-aws-django-gcp/actions/workflows/aws-deploy.yml/badge.svg)
+![docker-release-build](https://github.com/e-mit/fastapi-aws-django-gcp/actions/workflows/docker-release-build.yml/badge.svg)
+![release-test](https://github.com/e-mit/ fastapi-aws-django-gcp/actions/workflows/release-test.yml/badge.svg)
+![docker-hub-push](https://github.com/e-mit/ fastapi-aws-django-gcp/actions/workflows/docker-hub-push.yml/badge.svg)
+![gcp-artifact-push](https://github.com/e-mit/ fastapi-aws-django-gcp/actions/workflows/gcp-artifact-push.yml/badge.svg)
+![google-cloud-deploy](https://github.com/e-mit/ fastapi-aws-django-gcp/actions/workflows/google-cloud-deploy.yml/badge.svg)
 
 
 A demo project for posting and displaying text messages online, comprising:
@@ -20,17 +25,11 @@ A demo project for posting and displaying text messages online, comprising:
 [View the FastAPI Swagger UI on AWS.](https://peil328b55.execute-api.eu-west-2.amazonaws.com/docs)
 
 
-## To Do
-- Django release configuration
-- Docker containerisation
-- Deployment on GCP Cloud Run
-
-
 ## Continuous automated test, build and deploy
 
 Tests, linting and Docker build run via GitHub actions after each git push.
 
-If all action workflows pass, the new Docker image (Django) is automatically pushed to Docker Hub and deployed to Google Cloud Run as a new revision. The AWS Cloudformation stack (FastAPI) is also created/updated.
+If all action workflows pass, the new Docker image (Django app) is automatically pushed to Docker Hub and deployed to Google Cloud Run as a new revision. The Cloudformation stack (FastAPI) is also created/updated on AWS.
 
 
 ## Configure, build and deploy manually
@@ -54,3 +53,4 @@ These use uvicorn and the official test dynamoDB Docker container to run entirel
 ## Cloud tests
 
 After deploying to AWS, do ```./run_cloud_tests.sh```
+

@@ -1,0 +1,31 @@
+name: release-test
+
+on:
+  workflow_run:
+    workflows:
+      - docker-release-build
+    types:
+      - completed
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Wait for and download docker image artifact
+      uses: ./.github/actions/download-docker-artifact
+      with:
+        repo-read-token: ${{ secrets.GH_PAT }}
+        build-type: 'release'
+    - name: Release test
+      run: |
+        docker run -p 8080:8080 --name django_app --rm django_app:latest
+        sleep 4
+        page=$(curl http://127.0.0.1:8080)
+        if ! grep -q "FastAPI-AWS-Django-GCP" <<< "$page"; then echo "Page GET failed." && exit 1; fi
+    - name: Save result
+      if: always()
+      uses: ./.github/actions/save-workflow-result
+      with:
+        result: ${{ job.status }}
