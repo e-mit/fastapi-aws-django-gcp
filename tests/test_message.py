@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from fastapi import HTTPException
 import pytest
 
-from function.app.routers import message
+from fastapi_lambda.app.routers import message
 
 client = TestClient(message.router)
 

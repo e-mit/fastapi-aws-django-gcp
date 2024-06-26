@@ -3,7 +3,7 @@ import os
 
 import requests
 
-from function.app import main
+from fastapi_lambda.app import main
 
 CLOUD_URL = os.environ['CLOUD_URL']
 

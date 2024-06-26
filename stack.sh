@@ -49,8 +49,8 @@ _make_names() {
 }
 
 _delete_files() {
-    rm -rf function/__pycache__
-    rm -f function/*.pyc out.yml *.zip
+    rm -rf fastapi_lambda/__pycache__
+    rm -f fastapi_lambda/*.pyc out.yml *.zip
 }
 
 delete() {
@@ -149,7 +149,7 @@ print(json.dumps(environment))")
 update_function() {
     _make_names
     _delete_files
-    cd function
+    cd fastapi_lambda
     zip -r ../function.zip .
     cd ..
     aws lambda update-function-code \

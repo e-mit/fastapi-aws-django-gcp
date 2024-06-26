@@ -15,7 +15,7 @@ docker run --rm --name dynamodb_test_local -d -p 8000:8000 amazon/dynamodb-local
 sleep 5
 ./create_test_table.sh
 
-python -m pytest --cov=function/app tests -p no:cacheprovider
+python -m pytest --cov=fastapi_lambda/app tests -p no:cacheprovider
 
 docker stop -t 0 dynamodb_test_local
 
@@ -23,7 +23,7 @@ docker stop -t 0 dynamodb_test_local
 python -m bandit -r . --exclude=/tests/,/venv/,/cloud_tests/,message_tests.py
 python -m flake8 --exclude=tests/*,venv/*,cloud_tests/*,django_app/django_app/settings.py,django_app/app/migrations/*
 python -m mypy . --explicit-package-bases --exclude 'tests/' --exclude 'venv/' --exclude 'cloud_tests/'
-python -m pycodestyle function
-python -m pydocstyle function --ignore=D107,D203,D213
-python -m pylint function
-python -m pyright function
+python -m pycodestyle fastapi_lambda
+python -m pydocstyle fastapi_lambda --ignore=D107,D203,D213
+python -m pylint fastapi_lambda
+python -m pyright fastapi_lambda

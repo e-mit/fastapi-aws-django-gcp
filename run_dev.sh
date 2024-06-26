@@ -14,6 +14,6 @@ sleep 5
 
 ./create_test_table.sh
 
-uvicorn function.app.main:app --reload --port 8080
+uvicorn fastapi_lambda.app.main:app --reload --port 8080
 
 # docker stop -t 0 dynamodb_test_local

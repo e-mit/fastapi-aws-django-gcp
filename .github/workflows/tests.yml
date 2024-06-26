@@ -26,7 +26,7 @@ jobs:
       run: |
         export DB_TABLE_NAME=testTable
         export TEST=true
-        python -m pytest function/app tests -p no:cacheprovider
+        python -m pytest fastapi_lambda/app tests -p no:cacheprovider
     - name: Save result
       if: always()
       uses: ./.github/actions/save-workflow-result

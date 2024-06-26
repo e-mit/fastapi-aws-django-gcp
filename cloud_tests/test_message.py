@@ -7,7 +7,7 @@ from pathlib import Path
 
 import requests
 
-from function.app.main import MESSAGE_URL_PREFIX
+from fastapi_lambda.app.main import MESSAGE_URL_PREFIX
 from tests.test_message import timestamp_is_recent
 
 CLOUD_URL = os.environ['CLOUD_URL']

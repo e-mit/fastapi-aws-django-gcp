@@ -11,7 +11,7 @@ jobs:
       - name: Prepare test environment
         uses: ./.github/actions/prepare-test-environment
       - name: pylint
-        run: python -m pylint function
+        run: python -m pylint fastapi_lambda
       - name: Save result
         if: always()
         uses: ./.github/actions/save-workflow-result

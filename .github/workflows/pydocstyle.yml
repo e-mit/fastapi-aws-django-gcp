@@ -16,7 +16,7 @@ jobs:
         run: |
           pip install pydocstyle
       - name: pydocstyle
-        run: python -m pydocstyle function --ignore=D107,D203,D213
+        run: python -m pydocstyle fastapi_lambda --ignore=D107,D203,D213
       - name: Save result
         if: always()
         uses: ./.github/actions/save-workflow-result

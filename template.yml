@@ -57,7 +57,7 @@ Resources:
       PackageType: Zip
       Handler: lambda_function.lambda_handler
       Runtime: python3.10
-      CodeUri: function
+      CodeUri: fastapi_lambda
       Description: A Lambda to call a FastAPI app
       Timeout: !Ref timeout
       Policies:

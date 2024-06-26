@@ -16,7 +16,7 @@ jobs:
         run: |
           pip install pycodestyle
       - name: pycodestyle
-        run: python -m pycodestyle function
+        run: python -m pycodestyle fastapi_lambda
       - name: Save result
         if: always()
         uses: ./.github/actions/save-workflow-result
