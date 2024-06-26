@@ -20,7 +20,7 @@ USER nonroot
 
 FROM base as release
 ENV DJANGO_DEBUG=0
-CMD ["gunicorn", "django_app.wsgi:application", "--bind", "0.0.0.0:8080"]
+CMD ["gunicorn", "django_app.wsgi:application", "--bind", "0.0.0.0:8080", "--conf", "gunicorn_conf.py"]
 
 FROM base as dev
 ENV DJANGO_DEBUG=1
