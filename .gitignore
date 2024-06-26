@@ -8,3 +8,4 @@ out.yml
 function.zip
 db.sqlite3
 message_tests.py
+django_app/static

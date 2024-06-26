@@ -3,7 +3,7 @@
 export API_URL="https://peil328b55.execute-api.eu-west-2.amazonaws.com"
 
 # NB: run locally (without docker) using:
-# gunicorn django_app.wsgi:application --bind 0.0.0.0:8080
+# python django_app/manage.py runserver 0.0.0.0:8080
 
 ############################################
 
