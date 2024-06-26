@@ -1,0 +1,40 @@
+name: download-docker-artifact
+description: "Download the built docker image and run it"
+
+inputs:
+   repo-read-token:
+     required: true
+     description: "A GitHub PAT with actions:read permission on this repo."
+   build-type:
+     required: true
+     description: "'test' or 'release'"
+     default: 'test'
+
+runs:
+  using: "composite"
+  steps:
+  - name: Wait for docker image artifact
+    shell: bash
+    run: |
+      export GITHUB_SHA=${{ github.sha }}
+      export REPO_PATH=${{ github.repository }}
+      export GH_TOKEN=${{ inputs.repo-read-token }}
+      pip install -r requirements_test.txt
+      python .github/wait_for_workflow_artifacts.py - ${{ inputs.build-type }}-build-${{ github.sha }}
+  - name: Retrieve Docker image
+    uses: actions/download-artifact@v4
+    with:
+      name: ${{ inputs.build-type }}-build-${{ github.sha }}
+      run-id: ${{ github.event.workflow_run.id }}
+      github-token: ${{ inputs.repo-read-token }}
+  - name: Docker test run
+    if: ${{ inputs.build-type == 'test' }}
+    shell: bash
+    run: |
+      docker load < test_image.tar
+      docker run -p 8080:8080 --name django_dev \
+        -e API_URL=$API_URL --rm django_dev:latest
+  - name: Docker release load
+    if: ${{ inputs.build-type == 'release' }}
+    shell: bash
+    run: docker load < release_image.tar
