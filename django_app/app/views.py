@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.http import Http404
 from django.urls import reverse
+from django.conf import settings
 import requests
 
 from .models import DisplayMessage
@@ -24,7 +25,8 @@ def index(request):
     context = {"message_list": message_list,
                "PostMessageForm": PostMessageForm(),
                "swagger_url": os.path.join(API_URL, "docs"),
-               "site_name": SITE_NAME}
+               "site_name": SITE_NAME,
+               "TIME_ZONE": settings.TIME_ZONE}
     if request.method == "POST":
         message = PostMessageForm(request.POST)
         if message.is_valid():
