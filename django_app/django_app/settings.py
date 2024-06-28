@@ -36,6 +36,7 @@ ALLOWED_HOSTS = os.environ["DJANGO_ALLOWED_HOSTS"].split(" ")
 # Application definition
 
 INSTALLED_APPS = [
+    "whitenoise.runserver_nostatic",
     "app.apps.ApplicationConfig",  # Can also usually just put "app" here
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -123,7 +124,11 @@ STATIC_URL = '/static/'  # Base URL to refer to static files in templates
 STATIC_ROOT = BASE_DIR / 'static'  # target for "collectstatic"
 
 # Enable WhiteNoise compression and caching support
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    }
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
