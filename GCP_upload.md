@@ -10,6 +10,9 @@ gcloud artifacts repositories create djangorepo \
   --location=europe-west1 \
   --description="repo for django app image"
 
+Also manually configure it to have a cleanup policy where untagged images are deleted. By always
+pushing to the same name and tag, the previous one becomes untagged and thus is deleted (eventually).
+
 3. Tag the image with a special name:
 docker tag django_app:latest europe-west1-docker.pkg.dev/fastapi-aws-django-gcp/djangorepo/django_app:latest
 
