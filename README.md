@@ -24,7 +24,7 @@ A demo project for posting and displaying text messages online, comprising:
 
 [View the FastAPI Swagger UI on AWS.](https://peil328b55.execute-api.eu-west-2.amazonaws.com/docs)
 
-[Try the Django app on GCP.](https://django-app-service-43e3cwelsq-ew.a.run.app/)
+[Try the Django app on GCP.](https://django-app-service-43e3cwelsq-ew.a.run.app/) (**Note:** please allow time for the slow GCR cold start).
 
 
 ## Continuous automated test, build and deploy
